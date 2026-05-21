@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configurações - Helpdesk & RMM</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .configuracoes-container {
+      padding: 32px;
+      max-width: 900px;
+    }
+
+    .config-secoes {
+      display: flex;
+      gap: 24px;
+    }
+
+    .config-menu {
+      width: 250px;
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      height: fit-content;
+    }
+
+    .config-item {
+      padding: 12px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+      font-weight: 500;
+      color: #6a7c93;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+    }
+
+    .config-item:hover {
+      background: #f7fafc;
+      color: var(--topbar);
+    }
+
+    .config-item.ativo {
+      background: #eef5ff;
+      color: var(--topbar);
+      border-left: 4px solid var(--topbar);
+      padding-left: 12px;
+    }
+
+    .config-conteudo {
+      flex: 1;
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .config-titulo {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #253858;
+      margin-bottom: 24px;
+    }
+
+    .config-secao {
+      display: none;
+    }
+
+    .config-secao.ativo {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #253858;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d8e2ed;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+
+    .form-group-inline {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-descricao {
+      font-size: 0.85rem;
+      color: #6a7c93;
+      margin-top: 6px;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 24px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: var(--topbar);
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(26px);
+    }
+
+    .btn-salvar {
+      background: var(--topbar);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 16px;
+    }
+
+    .btn-salvar:hover {
+      opacity: 0.9;
+    }
+
+    .aviso {
+      background: #fff3e0;
+      border-left: 4px solid #ff9800;
+      padding: 16px;
+      border-radius: 6px;
+      margin-bottom: 24px;
+      color: #f57c00;
+      font-size: 0.9rem;
+    }
+
+    .logo-preview {
+      width: 120px;
+      height: 120px;
+      background: #f7fafc;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      border: 2px dashed #d8e2ed;
+      overflow: hidden;
+    }
+
+    .logo-preview img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .upload-area {
+      border: 2px dashed #d8e2ed;
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #f7fafc;
+    }
+
+    .upload-area:hover {
+      border-color: var(--topbar);
+      background: #eef5ff;
+    }
+
+    .upload-area input {
+      display: none;
+    }
+
+    .upload-text {
+      color: #6a7c93;
+      font-size: 0.9rem;
+    }
+
+    .file-info {
+      font-size: 0.85rem;
+      color: #2e7d32;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="configuracoes-container">
+    <h1>Configurações</h1>
+
+    <div class="config-secoes">
+      <aside class="config-menu">
+        <button class="config-item ativo" onclick="mudarSecao(0, event)">Perfil</button>
+        <button class=\"config-item\" onclick=\"mudarSecao(1, event)\">Logo do Sistema</button>
+        <button class=\"config-item\" onclick=\"mudarSecao(2, event)\">Notificações</button>
+        <button class=\"config-item\" onclick=\"mudarSecao(3, event)\">Segurança</button>
+        <button class=\"config-item\" onclick=\"mudarSecao(4, event)\">Integrações</button>
+        <button class=\"config-item\" onclick=\"mudarSecao(5, event)\">Sistema</button>
+      </aside>
+
+      <main class="config-conteudo">
+        <!-- Perfil -->
+        <div class="config-secao ativo">
+          <h2 class="config-titulo">Perfil</h2>
+          <form>
+            <div class="form-group-inline">
+              <div class="form-group">
+                <label>Nome Completo</label>
+                <input type="text" value="João Silva" />
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" value="joao@example.com" />
+              </div>
+            </div>
+            <div class="form-group-inline">
+              <div class="form-group">
+                <label>Telefone</label>
+                <input type="tel" value="(11) 99999-9999" />
+              </div>
+              <div class="form-group">
+                <label>Departamento</label>
+                <input type="text" value="Suporte Técnico" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Bio</label>
+              <textarea rows="4" placeholder="Conte um pouco sobre você..."></textarea>
+            </div>
+            <button type="button" class="btn-salvar">Salvar Alterações</button>
+          </form>
+        </div>
+
+        <!-- Logo do Sistema -->
+        <div class="config-secao">
+          <h2 class="config-titulo">Logo do Sistema</h2>
+          <p style="color: #6a7c93; margin-bottom: 20px;">Personalize a logo que aparece na barra lateral do sistema. Use imagens PNG ou SVG para melhor qualidade.</p>
+          
+          <div class="form-group">
+            <label>Logo Atual</label>
+            <div class="logo-preview" id="logo-preview">
+              <img src="../logolinkzam.png" alt="Logo atual">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Enviar Nova Logo</label>
+            <div class="upload-area" onclick="document.getElementById('logo-input').click()">
+              <div style="font-size: 1.5rem; margin-bottom: 8px;">📁</div>
+              <div class="upload-text">Clique ou arraste uma imagem aqui</div>
+              <div class="file-info">PNG ou SVG (máx. 2MB)</div>
+              <input type="file" id="logo-input" accept="image/png,image/svg+xml" onchange="alterarLogo(event)">
+            </div>
+          </div>
+
+          <div class="form-group-inline">
+            <div class="form-group">
+              <label>Tamanho da Logo</label>
+              <select id="logo-size">
+                <option value="pequena">Pequena (60px)</option>
+                <option value="media" selected>Média (80px)</option>
+                <option value="grande">Grande (100px)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Posição</label>
+              <select>
+                <option value="topo">Topo</option>
+                <option value="centro" selected>Centro</option>
+                <option value="fundo">Fundo</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="button" class="btn-salvar" onclick="salvarConfiguracoesLogo()">Salvar Logo</button>
+        </div>
+
+        <!-- Notificações -->
+        <div class="config-secao">
+          <h2 class="config-titulo">Notificações</h2>
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 12px; font-weight: normal;">
+              <label class="toggle-switch">
+                <input type="checkbox" checked>
+                <span class="toggle-slider"></span>
+              </label>
+              Email para novos chamados
+            </label>
+            <div class="form-descricao">Receba notificação por email quando um novo chamado for atribuído</div>
+          </div>
+
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 12px; font-weight: normal;">
+              <label class="toggle-switch">
+                <input type="checkbox" checked>
+                <span class="toggle-slider"></span>
+              </label>
+              Alertas de Sistema
+            </label>
+            <div class="form-descricao">Notificações sobre eventos críticos do sistema</div>
+          </div>
+
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 12px; font-weight: normal;">
+              <label class="toggle-switch">
+                <input type="checkbox">
+                <span class="toggle-slider"></span>
+              </label>
+              Relatórios Semanais
+            </label>
+            <div class="form-descricao">Receba resumo semanal de atividades</div>
+          </div>
+
+          <button type="button" class="btn-salvar">Salvar Preferências</button>
+        </div>
+
+        <!-- Segurança -->
+        <div class="config-secao">
+          <h2 class="config-titulo">Segurança</h2>
+          <div class="aviso">
+            ⚠️ Alterar senhas frequentemente ajuda a manter sua conta segura
+          </div>
+          <div class="form-group">
+            <label>Senha Atual</label>
+            <input type="password" />
+          </div>
+          <div class="form-group-inline">
+            <div class="form-group">
+              <label>Nova Senha</label>
+              <input type="password" />
+            </div>
+            <div class="form-group">
+              <label>Confirmar Senha</label>
+              <input type="password" />
+            </div>
+          </div>
+          <button type="button" class="btn-salvar">Alterar Senha</button>
+
+          <h3 style="margin-top: 32px; margin-bottom: 16px;">Autenticação de Dois Fatores</h3>
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 12px; font-weight: normal;">
+              <label class="toggle-switch">
+                <input type="checkbox">
+                <span class="toggle-slider"></span>
+              </label>
+              Ativar 2FA por SMS
+            </label>
+          </div>
+        </div>
+
+        <!-- Integrações -->
+        <div class="config-secao">
+          <h2 class="config-titulo">Integrações</h2>
+          <h3 style="margin-bottom: 16px;">Serviços Conectados</h3>
+          <div class="form-group">
+            <label style="display: flex; justify-content: space-between; align-items: center;">
+              <span>Supabase (Banco de Dados)</span>
+              <span style="color: #4caf50; font-weight: 600;">✓ Conectado</span>
+            </label>
+          </div>
+          <div class="form-group">
+            <label style="display: flex; justify-content: space-between; align-items: center;">
+              <span>Webhooks</span>
+              <button style="background: var(--topbar); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Configurar</button>
+            </label>
+          </div>
+        </div>
+
+        <!-- Sistema -->
+        <div class="config-secao">
+          <h2 class="config-titulo">Sistema</h2>
+          <h3 style="margin-bottom: 16px;">Informações do Sistema</h3>
+          <div class="form-group" style="background: #f7fafc; padding: 16px; border-radius: 6px; border: none;">
+            <p><strong>Versão do Sistema:</strong> 1.0.0</p>
+            <p><strong>Banco de Dados:</strong> Supabase PostgreSQL</p>
+            <p><strong>Último Backup:</strong> 21/05/2026 23:00</p>
+            <p><strong>Status:</strong> ✓ Tudo funcionando normalmente</p>
+          </div>
+
+          <h3 style="margin-top: 32px; margin-bottom: 16px;">Operações Perigosas</h3>
+          <button type="button" style="background: #f44336; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: 600;">Deletar Todos os Dados</button>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    function mudarSecao(indice, event) {
+      event.preventDefault();
+      
+      document.querySelectorAll('.config-item').forEach(item => item.classList.remove('ativo'));
+      event.target.classList.add('ativo');
+
+      document.querySelectorAll('.config-secao').forEach(sec => sec.classList.remove('ativo'));
+      document.querySelectorAll('.config-secao')[indice].classList.add('ativo');
+    }
+
+    function alterarLogo(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const preview = document.getElementById('logo-preview');
+        preview.innerHTML = `<img src="${e.target.result}" alt="Logo preview">`;
+        
+        // Salvar no localStorage
+        localStorage.setItem('logo_sistema', e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function salvarConfiguracoesLogo() {
+      const tamanho = document.getElementById('logo-size').value;
+      localStorage.setItem('logo_tamanho', tamanho);
+      alert('✓ Configurações de logo salvas com sucesso!');
+    }
+
+    // Carregar logo salva ao abrir a página
+    window.addEventListener('load', () => {
+      const logoSalva = localStorage.getItem('logo_sistema');
+      if (logoSalva) {
+        document.getElementById('logo-preview').innerHTML = `<img src="${logoSalva}" alt="Logo">`;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatórios - Helpdesk & RMM</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .relatorios-container {
+      padding: 32px;
+    }
+
+    .header-relatorios {
+      margin-bottom: 32px;
+    }
+
+    .relatorios-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .relatorio-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-left: 4px solid var(--topbar);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .relatorio-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+    }
+
+    .relatorio-icone {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+    }
+
+    .relatorio-titulo {
+      font-weight: 600;
+      color: #253858;
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+    }
+
+    .relatorio-descricao {
+      color: #6a7c93;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .relatorio-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 16px;
+      border-top: 1px solid #f0f0f0;
+      font-size: 0.85rem;
+      color: #bdbdbd;
+    }
+
+    .btn-gerar {
+      background: var(--topbar);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: opacity 0.2s;
+    }
+
+    .btn-gerar:hover {
+      opacity: 0.9;
+    }
+
+    .relatorios-listados {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .relatorio-listado {
+      padding: 20px 24px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .relatorio-listado:last-child {
+      border-bottom: none;
+    }
+
+    .relatorio-info {
+      flex: 1;
+    }
+
+    .relatorio-nome {
+      font-weight: 600;
+      color: #253858;
+      margin-bottom: 4px;
+    }
+
+    .relatorio-data {
+      font-size: 0.9rem;
+      color: #6a7c93;
+    }
+
+    .relatorio-acoes {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-acao {
+      padding: 8px 16px;
+      border: 1px solid #d8e2ed;
+      background: #f7fafc;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .btn-acao:hover {
+      background: #eef5ff;
+      border-color: var(--topbar);
+    }
+  </style>
+</head>
+<body>
+  <div class="relatorios-container">
+    <div class="header-relatorios">
+      <h1>Relatórios</h1>
+      <p style="color: #6a7c93; margin: 8px 0 0 0;">Gere relatórios e analise dados do seu helpdesk</p>
+    </div>
+
+    <h2>Gerar Novo Relatório</h2>
+    <div class="relatorios-grid" id="relatoriosDisponiveis"></div>
+
+    <h2>Relatórios Recentes</h2>
+    <div class="relatorios-listados" id="relatoriosRecentes"></div>
+  </div>
+
+  <script>
+    const relatoriosDisponiveis = [
+      {
+        titulo: 'Desempenho Geral',
+        descricao: 'Análise completa de performance, SLA e tempo médio de resolução',
+        icone: '📊',
+        frequencia: 'Personalizável'
+      },
+      {
+        titulo: 'Chamados por Período',
+        descricao: 'Estatísticas de chamados abertos, fechados e em andamento',
+        icone: '🎫',
+        frequencia: 'Mensal/Trimestral/Anual'
+      },
+      {
+        titulo: 'Conformidade SLA',
+        descricao: 'Detalhamento de cumprimento de SLA por cliente',
+        icone: '✅',
+        frequencia: 'Semanal/Mensal'
+      },
+      {
+        titulo: 'Relatório Financeiro',
+        descricao: 'Análise de custos, receitas e ROI do suporte técnico',
+        icone: '💰',
+        frequencia: 'Mensal'
+      },
+      {
+        titulo: 'Monitoramento RMM',
+        descricao: 'Histórico de dispositivos, alertas e performance',
+        icone: '📡',
+        frequencia: 'Personalizado'
+      },
+      {
+        titulo: 'Disponibilidade de Sistemas',
+        descricao: 'Uptime e downtime dos servidores monitorados',
+        icone: '🖥️',
+        frequencia: 'Diário/Mensal'
+      }
+    ];
+
+    const relatoriosRecentes = [
+      {
+        nome: 'Desempenho Geral - Maio/2026',
+        data: '21/05/2026 14:32',
+        tamanho: '2.4 MB'
+      },
+      {
+        nome: 'Conformidade SLA - Semana 20',
+        data: '19/05/2026 09:15',
+        tamanho: '1.8 MB'
+      },
+      {
+        nome: 'Chamados por Período - Maio',
+        data: '15/05/2026 16:45',
+        tamanho: '3.1 MB'
+      },
+      {
+        nome: 'Monitoramento RMM - Período Completo',
+        data: '10/05/2026 11:20',
+        tamanho: '5.6 MB'
+      },
+      {
+        nome: 'Relatório Financeiro - Abril/2026',
+        data: '01/05/2026 08:00',
+        tamanho: '1.2 MB'
+      }
+    ];
+
+    function renderizarRelatorios() {
+      const grid = document.getElementById('relatoriosDisponiveis');
+      grid.innerHTML = relatoriosDisponiveis.map(r => `
+        <div class="relatorio-card" onclick="gerarRelatorio('${r.titulo}')">
+          <div class="relatorio-icone">${r.icone}</div>
+          <div class="relatorio-titulo">${r.titulo}</div>
+          <div class="relatorio-descricao">${r.descricao}</div>
+          <div class="relatorio-meta">
+            <span>⏱️ ${r.frequencia}</span>
+            <button class="btn-gerar" onclick="event.stopPropagation(); gerarRelatorio('${r.titulo}')">Gerar</button>
+          </div>
+        </div>
+      `).join('');
+
+      const recentes = document.getElementById('relatoriosRecentes');
+      recentes.innerHTML = relatoriosRecentes.map(r => `
+        <div class="relatorio-listado">
+          <div class="relatorio-info">
+            <div class="relatorio-nome">${r.nome}</div>
+            <div class="relatorio-data">${r.data} • ${r.tamanho}</div>
+          </div>
+          <div class="relatorio-acoes">
+            <button class="btn-acao" onclick="downloadRelatorio('${r.nome}')">Download</button>
+            <button class="btn-acao" onclick="visualizarRelatorio('${r.nome}')">Visualizar</button>
+            <button class="btn-acao" onclick="compartilharRelatorio('${r.nome}')">Compartilhar</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function gerarRelatorio(tipo) {
+      alert('Gerando relatório: ' + tipo);
+    }
+
+    function downloadRelatorio(nome) {
+      alert('Baixando: ' + nome);
+    }
+
+    function visualizarRelatorio(nome) {
+      alert('Visualizando: ' + nome);
+    }
+
+    function compartilharRelatorio(nome) {
+      alert('Compartilhando: ' + nome);
+    }
+
+    renderizarRelatorios();
+  </script>
+</body>
+</html>

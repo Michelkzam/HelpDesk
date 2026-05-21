@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat ao Vivo - Helpdesk & RMM</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .chat-container {
+      padding: 32px;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 24px;
+      height: calc(100vh - 120px);
+    }
+
+    .lista-conversas {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+    }
+
+    .conversa {
+      padding: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .conversa:hover {
+      background: #f7fafc;
+      border-color: #d8e2ed;
+    }
+
+    .conversa.ativa {
+      background: #eef5ff;
+      border-color: var(--topbar);
+    }
+
+    .conversa-nome {
+      font-weight: 600;
+      color: #253858;
+      margin-bottom: 4px;
+    }
+
+    .conversa-preview {
+      font-size: 0.85rem;
+      color: #6a7c93;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .conversa-hora {
+      font-size: 0.8rem;
+      color: #bdbdbd;
+      margin-top: 4px;
+    }
+
+    .chat-area {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      border-bottom: 1px solid #d8e2ed;
+      padding-bottom: 16px;
+      margin-bottom: 16px;
+      font-weight: 600;
+      color: #253858;
+    }
+
+    .mensagens {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .mensagem {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      max-width: 70%;
+    }
+
+    .mensagem.propria {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--topbar);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .mensagem-conteudo {
+      background: #f7fafc;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border-radius: 12px 12px 12px 0;
+    }
+
+    .mensagem.propria .mensagem-conteudo {
+      background: var(--topbar);
+      color: white;
+      border-radius: 12px 12px 0 12px;
+    }
+
+    .mensagem-texto {
+      margin: 0;
+    }
+
+    .mensagem-hora {
+      font-size: 0.75rem;
+      color: #6a7c93;
+      margin-top: 4px;
+    }
+
+    .mensagem.propria .mensagem-hora {
+      color: rgba(255,255,255,0.7);
+    }
+
+    .input-area {
+      display: flex;
+      gap: 12px;
+      border-top: 1px solid #d8e2ed;
+      padding-top: 16px;
+    }
+
+    .input-area input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1px solid #d8e2ed;
+      border-radius: 6px;
+      font-family: inherit;
+    }
+
+    .input-area button {
+      background: var(--topbar);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .placeholder {
+      text-align: center;
+      color: #6a7c93;
+      padding: 48px 24px;
+    }
+
+    @media (max-width: 900px) {
+      .chat-container {
+        grid-template-columns: 1fr;
+      }
+
+      .lista-conversas {
+        display: none;
+      }
+
+      .mensagem {
+        max-width: 85%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <!-- Lista de Conversas -->
+    <aside class="lista-conversas" id="listaConversas">
+      <h3 style="margin: 0 0 16px 0; color: #253858;">Conversas</h3>
+    </aside>
+
+    <!-- Área de Chat -->
+    <main class="chat-area">
+      <div class="chat-header" id="chatHeader">Selecione uma conversa</div>
+      <div class="mensagens" id="mensagensArea"></div>
+      <div class="input-area" id="inputArea" style="display: none;">
+        <input type="text" id="inputMensagem" placeholder="Digite uma mensagem...">
+        <button onclick="enviarMensagem()">Enviar</button>
+      </div>
+      <div class="placeholder" id="placeholder">Selecione uma conversa para começar</div>
+    </main>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3001/api';
+    const WS_URL = 'ws://localhost:3001';
+    let usuario = JSON.parse(sessionStorage.getItem('usuario'));
+    let conversaSelecionada = null;
+    let ws = null;
+
+    // Conectar WebSocket
+    function conectarWebSocket() {
+      ws = new WebSocket(WS_URL);
+
+      ws.addEventListener('open', () => {
+        ws.send(JSON.stringify({
+          type: 'init',
+          usuario: usuario.id,
+          nome: usuario.nome,
+          userType: usuario.tipo
+        }));
+      });
+
+      ws.addEventListener('message', (event) => {
+        const message = JSON.parse(event.data);
+        if (message.type === 'message') {
+          adicionarMensagemAChat(message);
+        }
+      });
+
+      ws.addEventListener('close', () => {
+        setTimeout(conectarWebSocket, 3000);
+      });
+    }
+
+    function carregarConversas() {
+      const listaDiv = document.getElementById('listaConversas');
+      const html = `
+        <h3 style="margin: 0 0 16px 0; color: #253858;">Conversas</h3>
+        <div class="conversa ativa" onclick="selecionarConversa(null, 'Suporte ao Cliente')">
+          <div class="conversa-nome">Suporte ao Cliente</div>
+          <div class="conversa-preview">Clique para iniciar chat...</div>
+          <div class="conversa-hora">Agora</div>
+        </div>
+        <div class="conversa" onclick="selecionarConversa('agente1', 'João Silva')">
+          <div class="conversa-nome">João Silva</div>
+          <div class="conversa-preview">Vou verificar isso para você</div>
+          <div class="conversa-hora">10:30</div>
+        </div>
+        <div class="conversa" onclick="selecionarConversa('agente2', 'Maria Santos')">
+          <div class="conversa-nome">Maria Santos</div>
+          <div class="conversa-preview">Seu chamado foi atualizado</div>
+          <div class="conversa-hora">09:15</div>
+        </div>
+      `;
+      listaDiv.innerHTML = html;
+    }
+
+    function selecionarConversa(id, nome) {
+      conversaSelecionada = id;
+      document.querySelectorAll('.conversa').forEach(el => el.classList.remove('ativa'));
+      event.target.closest('.conversa').classList.add('ativa');
+
+      document.getElementById('chatHeader').textContent = nome;
+      document.getElementById('placeholder').style.display = 'none';
+      document.getElementById('inputArea').style.display = 'flex';
+      document.getElementById('mensagensArea').innerHTML = '';
+
+      carregarMensagensChat();
+    }
+
+    function carregarMensagensChat() {
+      // Simular carregamento de histórico
+      const mensagens = [
+        {from: 'Suporte', texto: 'Olá! Como posso ajudá-lo?', proprio: false, hora: '09:00'},
+        {from: usuario.nome, texto: 'Olá, meu computador está com problema.', proprio: true, hora: '09:05'},
+        {from: 'Suporte', texto: 'Qual é o problema específico?', proprio: false, hora: '09:06'},
+      ];
+
+      const area = document.getElementById('mensagensArea');
+      area.innerHTML = mensagens.map(m => {
+        const iniciais = m.from.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        return `
+          <div class="mensagem ${m.proprio ? 'propria' : ''}">
+            <div class="avatar">${iniciais}</div>
+            <div class="mensagem-conteudo">
+              <p class="mensagem-texto">${m.texto}</p>
+              <div class="mensagem-hora">${m.hora}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      area.scrollTop = area.scrollHeight;
+    }
+
+    function enviarMensagem() {
+      const input = document.getElementById('inputMensagem');
+      const texto = input.value.trim();
+
+      if (!texto) return;
+
+      const mensagem = {
+        from: usuario.id,
+        text: texto,
+        userType: usuario.tipo,
+        destinatario: conversaSelecionada,
+        timestamp: new Date()
+      };
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'message',
+          ...mensagem
+        }));
+      }
+
+      adicionarMensagemAChat({
+        from: usuario.nome,
+        text: texto,
+        proprio: true,
+        hora: new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})
+      });
+
+      input.value = '';
+    }
+
+    function adicionarMensagemAChat(msg) {
+      const area = document.getElementById('mensagensArea');
+      const iniciais = msg.from.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      const hora = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+
+      const div = document.createElement('div');
+      div.className = `mensagem ${msg.proprio || msg.from === usuario.nome ? 'propria' : ''}`;
+      div.innerHTML = `
+        <div class="avatar">${iniciais}</div>
+        <div class="mensagem-conteudo">
+          <p class="mensagem-texto">${msg.text}</p>
+          <div class="mensagem-hora">${hora}</div>
+        </div>
+      `;
+
+      area.appendChild(div);
+      area.scrollTop = area.scrollHeight;
+    }
+
+    document.getElementById('inputMensagem')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') enviarMensagem();
+    });
+
+    conectarWebSocket();
+    carregarConversas();
+  </script>
+</body>
+</html>

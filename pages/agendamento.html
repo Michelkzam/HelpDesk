@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agendamento - Helpdesk & RMM</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .calendario-container {
+      padding: 32px;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 32px;
+    }
+
+    .calendario-navegacao {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      height: fit-content;
+    }
+
+    .mes-ano {
+      text-align: center;
+      font-weight: 600;
+      margin-bottom: 16px;
+      font-size: 1.1rem;
+    }
+
+    .navegacao-botoes {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .navegacao-botoes button {
+      background: var(--topbar);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .mini-calendario {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-bottom: 24px;
+    }
+
+    .dia-semana {
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #6a7c93;
+      padding: 8px 0;
+    }
+
+    .dia {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .dia:hover {
+      background: #eef5ff;
+    }
+
+    .dia.outro-mes {
+      color: #bdbdbd;
+    }
+
+    .dia.selecionado {
+      background: var(--topbar);
+      color: white;
+    }
+
+    .dia.hoje {
+      border: 2px solid var(--topbar);
+    }
+
+    .eventos-selecionado {
+      background: #f7fafc;
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .data-selecionada {
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #253858;
+    }
+
+    .btn-novo-evento {
+      width: 100%;
+      background: var(--topbar);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .lista-eventos {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .evento-item {
+      background: white;
+      padding: 12px;
+      border-radius: 6px;
+      border-left: 4px solid var(--topbar);
+      font-size: 0.95rem;
+    }
+
+    .evento-hora {
+      font-weight: 600;
+      color: var(--topbar);
+    }
+
+    .evento-titulo {
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .evento-tipo {
+      font-size: 0.85rem;
+      color: #6a7c93;
+      margin-top: 4px;
+    }
+
+    .vista-mes {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .calendario-mes {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+
+    .dia-calendario {
+      aspect-ratio: 1;
+      border: 1px solid #d8e2ed;
+      border-radius: 8px;
+      padding: 8px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+      overflow: hidden;
+    }
+
+    .dia-calendario:hover {
+      background: #eef5ff;
+      border-color: var(--topbar);
+    }
+
+    .numero-dia {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #253858;
+      margin-bottom: 4px;
+    }
+
+    .eventos-dia {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 0.7rem;
+    }
+
+    .ponto-evento {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--topbar);
+      display: inline-block;
+      margin-right: 4px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.ativo {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d8e2ed;
+      border-radius: 6px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-primario {
+      background: var(--topbar);
+      color: white;
+    }
+
+    .btn-secundario {
+      background: #f7fafc;
+      color: #253858;
+      border: 1px solid #d8e2ed;
+    }
+  </style>
+</head>
+<body>
+  <div class="calendario-container">
+    <!-- Navegação e Eventos do Dia -->
+    <aside class="calendario-navegacao">
+      <div class="mes-ano" id="mesAnoLabel"></div>
+      <div class="navegacao-botoes">
+        <button onclick="mesAnterior()">← Ant</button>
+        <button onclick="mesProximo()">Prox →</button>
+      </div>
+
+      <div class="mini-calendario" id="miniCalendario"></div>
+
+      <div class="eventos-selecionado">
+        <div class="data-selecionada" id="dataSelecionada"></div>
+        <button class="btn-novo-evento" onclick="abrirNovoEvento()">+ Novo Evento</button>
+        <div class="lista-eventos" id="eventosDodia"></div>
+      </div>
+    </aside>
+
+    <!-- Visualização do Mês -->
+    <main class="vista-mes">
+      <div class="calendario-mes" id="calendarioMes"></div>
+    </main>
+  </div>
+
+  <!-- Modal Novo Evento -->
+  <div class="modal" id="modalEvento">
+    <div class="modal-content">
+      <h2>Novo Evento</h2>
+      <form id="formEvento">
+        <div class="form-group">
+          <label>Título</label>
+          <input type="text" name="titulo" required>
+        </div>
+        <div class="form-group">
+          <label>Descrição</label>
+          <textarea name="descricao"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Tipo</label>
+          <select name="tipo" required>
+            <option value="visita">Visita Técnica</option>
+            <option value="manutencao">Manutenção</option>
+            <option value="reuniao">Reunião</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Data Início</label>
+          <input type="datetime-local" name="data_inicio" required>
+        </div>
+        <div class="form-group">
+          <label>Data Fim</label>
+          <input type="datetime-local" name="data_fim" required>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secundario" onclick="fecharModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primario">Salvar Evento</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3001/api';
+    let usuario = JSON.parse(sessionStorage.getItem('usuario'));
+    let dataAtual = new Date();
+    let dataSelecionada = new Date();
+    let eventos = [];
+
+    function renderMiniCalendario() {
+      const miniCal = document.getElementById('miniCalendario');
+      miniCal.innerHTML = '';
+
+      const diaSemana = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+      diaSemana.forEach(d => {
+        const el = document.createElement('div');
+        el.className = 'dia-semana';
+        el.textContent = d;
+        miniCal.appendChild(el);
+      });
+
+      const primeiro = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), 1);
+      const ultimo = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + 1, 0);
+      const diasAntes = primeiro.getDay();
+
+      // Dias do mês anterior
+      for (let i = diasAntes - 1; i >= 0; i--) {
+        const d = new Date(primeiro);
+        d.setDate(d.getDate() - i - 1);
+        const el = document.createElement('div');
+        el.className = 'dia outro-mes';
+        el.textContent = d.getDate();
+        miniCal.appendChild(el);
+      }
+
+      // Dias do mês atual
+      for (let i = 1; i <= ultimo.getDate(); i++) {
+        const d = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), i);
+        const el = document.createElement('div');
+        el.className = 'dia';
+
+        if (d.getDate() === new Date().getDate() && 
+            d.getMonth() === new Date().getMonth() &&
+            d.getFullYear() === new Date().getFullYear()) {
+          el.classList.add('hoje');
+        }
+
+        if (d.getDate() === dataSelecionada.getDate() && 
+            d.getMonth() === dataSelecionada.getMonth()) {
+          el.classList.add('selecionado');
+        }
+
+        el.textContent = i;
+        el.addEventListener('click', () => selecionarData(i));
+        miniCal.appendChild(el);
+      }
+
+      // Dias do próximo mês
+      const diasDepois = 42 - (diasAntes + ultimo.getDate());
+      for (let i = 1; i <= diasDepois; i++) {
+        const el = document.createElement('div');
+        el.className = 'dia outro-mes';
+        el.textContent = i;
+        miniCal.appendChild(el);
+      }
+
+      atualizarLabel();
+    }
+
+    function renderCalendarioMes() {
+      const cal = document.getElementById('calendarioMes');
+      cal.innerHTML = '';
+
+      const diaSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+      diaSemana.forEach(d => {
+        const el = document.createElement('div');
+        el.className = 'dia-semana';
+        el.textContent = d;
+        el.style.fontWeight = '600';
+        cal.appendChild(el);
+      });
+
+      const primeiro = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), 1);
+      const ultimo = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + 1, 0);
+      const diasAntes = primeiro.getDay();
+
+      // Dias do mês anterior
+      for (let i = diasAntes - 1; i >= 0; i--) {
+        const d = new Date(primeiro);
+        d.setDate(d.getDate() - i - 1);
+        const el = document.createElement('div');
+        el.className = 'dia-calendario outro-mes';
+        el.innerHTML = `<div class="numero-dia">${d.getDate()}</div>`;
+        cal.appendChild(el);
+      }
+
+      // Dias do mês atual
+      for (let i = 1; i <= ultimo.getDate(); i++) {
+        const d = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), i);
+        const el = document.createElement('div');
+        el.className = 'dia-calendario';
+
+        const eventosDia = eventos.filter(e => {
+          const data = new Date(e.data_inicio);
+          return data.getDate() === i && data.getMonth() === dataAtual.getMonth();
+        });
+
+        el.innerHTML = `
+          <div class="numero-dia">${i}</div>
+          <div class="eventos-dia">
+            ${eventosDia.slice(0, 2).map(e => `<div><span class="ponto-evento"></span>${e.titulo}</div>`).join('')}
+            ${eventosDia.length > 2 ? `<div>+${eventosDia.length - 2} mais</div>` : ''}
+          </div>
+        `;
+
+        el.addEventListener('click', () => selecionarData(i));
+        cal.appendChild(el);
+      }
+
+      // Dias do próximo mês
+      const diasDepois = 42 - (diasAntes + ultimo.getDate());
+      for (let i = 1; i <= diasDepois; i++) {
+        const el = document.createElement('div');
+        el.className = 'dia-calendario outro-mes';
+        el.innerHTML = `<div class="numero-dia">${i}</div>`;
+        cal.appendChild(el);
+      }
+    }
+
+    function selecionarData(dia) {
+      dataSelecionada = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), dia);
+      renderMiniCalendario();
+      renderEventosDodia();
+      atualizarLabelData();
+    }
+
+    function renderEventosDodia() {
+      const lista = document.getElementById('eventosDodia');
+      const eventosDia = eventos.filter(e => {
+        const data = new Date(e.data_inicio);
+        return data.getDate() === dataSelecionada.getDate() &&
+               data.getMonth() === dataSelecionada.getMonth();
+      });
+
+      lista.innerHTML = eventosDia.map(e => {
+        const hora = new Date(e.data_inicio).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+        return `
+          <div class="evento-item">
+            <div class="evento-hora">${hora}</div>
+            <div class="evento-titulo">${e.titulo}</div>
+            <div class="evento-tipo">${e.tipo}</div>
+          </div>
+        `;
+      }).join('') || '<p style="color: #6a7c93; text-align: center;">Nenhum evento</p>';
+    }
+
+    function atualizarLabel() {
+      const label = document.getElementById('mesAnoLabel');
+      label.textContent = dataAtual.toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'});
+    }
+
+    function atualizarLabelData() {
+      const label = document.getElementById('dataSelecionada');
+      label.textContent = dataSelecionada.toLocaleDateString('pt-BR', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'});
+    }
+
+    function mesAnterior() {
+      dataAtual.setMonth(dataAtual.getMonth() - 1);
+      renderMiniCalendario();
+      renderCalendarioMes();
+    }
+
+    function mesProximo() {
+      dataAtual.setMonth(dataAtual.getMonth() + 1);
+      renderMiniCalendario();
+      renderCalendarioMes();
+    }
+
+    function abrirNovoEvento() {
+      const form = document.getElementById('formEvento');
+      const inicio = new Date(dataSelecionada);
+      inicio.setHours(10, 0, 0, 0);
+      const fim = new Date(dataSelecionada);
+      fim.setHours(11, 0, 0, 0);
+
+      form.elements['data_inicio'].value = inicio.toISOString().slice(0, 16);
+      form.elements['data_fim'].value = fim.toISOString().slice(0, 16);
+
+      document.getElementById('modalEvento').classList.add('ativo');
+    }
+
+    function fecharModal() {
+      document.getElementById('modalEvento').classList.remove('ativo');
+    }
+
+    document.getElementById('formEvento').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+
+      try {
+        const resp = await fetch(`${API_URL}/agendamento`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            titulo: form.elements['titulo'].value,
+            descricao: form.elements['descricao'].value,
+            data_inicio: form.elements['data_inicio'].value,
+            data_fim: form.elements['data_fim'].value,
+            tipo: form.elements['tipo'].value,
+            usuario_id: usuario.id
+          })
+        });
+
+        if (resp.ok) {
+          const novoEvento = await resp.json();
+          eventos.push(novoEvento);
+          fecharModal();
+          form.reset();
+          renderMiniCalendario();
+          renderCalendarioMes();
+          renderEventosDodia();
+          alert('Evento criado com sucesso!');
+        }
+      } catch (error) {
+        alert('Erro ao criar evento');
+        console.error(error);
+      }
+    });
+
+    async function carregarEventos() {
+      try {
+        const resp = await fetch(`${API_URL}/agendamento?usuario_id=${usuario.id}`);
+        eventos = await resp.json();
+        renderMiniCalendario();
+        renderCalendarioMes();
+        renderEventosDodia();
+      } catch (error) {
+        console.error('Erro ao carregar eventos:', error);
+      }
+    }
+
+    carregarEventos();
+    atualizarLabelData();
+  </script>
+</body>
+</html>

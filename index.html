@@ -44,6 +44,10 @@
             <span class="icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 6V12L15.5 13.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 10.5C19 15.1944 15.1944 19 10.5 19C5.80558 19 2 15.1944 2 10.5C2 5.80558 5.80558 2 10.5 2C15.1944 2 19 5.80558 19 10.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
             <span class="label">SLA</span>
           </a>
+          <a href="#" class="menu-link" title="Agendamento" data-page="Agendamento" data-color="#e91e63" style="--menu-color: #e91e63;">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 4H19V16H5V4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 1V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M16 1V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M5 10H19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+            <span class="label">Agendamento</span>
+          </a>
         </nav>
       </div>
 
@@ -80,6 +84,10 @@
           <!-- <span class="arrow"></span> -->
         </button>
         <nav class="sidebar-menu">
+          <a href="#" class="menu-link" title="Usuários" data-page="Usuários" data-color="#1976d2" style="--menu-color: #1976d2;">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 11C17.66 11 18.99 9.66 18.99 8C18.99 6.34 17.66 5 16 5C14.34 5 13 6.34 13 8C13 9.66 14.34 11 16 11ZM8 11C9.66 11 10.99 9.66 10.99 8C10.99 6.34 9.66 5 8 5C6.34 5 5 6.34 5 8C5 9.66 6.34 11 8 11ZM8 13C6 13 2 14 2 16V20H14V16C14 14 10 13 8 13ZM16 13C15.71 13 15.38 13.02 15.03 13.05C16.19 14.89 17 17.11 17 20V20H22V16C22 14 18 13 16 13Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="currentColor"/></svg></span>
+            <span class="label">Usuários</span>
+          </a>
           <a href="#" class="menu-link" title="Clientes" data-page="Clientes" data-color="#ff9800" style="--menu-color: #ff9800;">
             <span class="icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 20V18C6 16.8954 6.89543 16 8 16H16C17.1046 16 18 16.8954 18 18V20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
             <span class="label">Clientes</span>
@@ -104,21 +112,14 @@
       <header class="topbar">
         <div class="topbar-title">Dashboard</div>
         <div class="topbar-actions">
-          <a href="#">Perfil</a>
-          <a href="#">Sair</a>
+          <a href="#" id="btn-perfil" onclick="perfilUsuario(event)" style="cursor:pointer;">Perfil</a>
+          <a href="#" id="btn-sair" onclick="sairSistema(event)" style="cursor:pointer;">Sair</a>
         </div>
       </header>
 
       <section class="content">
         <div class="content-box">
-          <h1 id="page-heading">Dashboard</h1>
-          <p id="page-description">Painel principal com visão geral de tickets, ativos, alertas e desempenho do suporte.</p>
-          <ul class="feature-list">
-            <li>Visão consolidada de chamados e estados de atendimento</li>
-            <li>Monitoramento em tempo real de estações e servidores</li>
-            <li>Escalonamento inteligente e automações de scripts</li>
-            <li>Relatórios financeiros e de SLA altamente configuráveis</li>
-          </ul>
+        <iframe id="page-frame" src="pages/dashboard.html" style="width:100%; height:100%; border:none;"></iframe>
         </div>
       </section>
     </div>
@@ -126,66 +127,89 @@
 
   <script>
     const menuLinks = document.querySelectorAll('.menu-link');
-    const topbar = document.querySelector('.topbar');
-    const topbarTitle = document.querySelector('.topbar-title');
-    const pageHeading = document.getElementById('page-heading');
-    const pageDescription = document.getElementById('page-description');
-    const sidebar = document.querySelector('.sidebar');
-    const sidebarToggle = document.querySelector('.sidebar-toggle');
-    const sectionToggles = document.querySelectorAll('.section-toggle');
+  const topbarTitle = document.querySelector('.topbar-title');
+  const sidebar = document.querySelector('.sidebar');
+  const appShell = document.querySelector('.app-shell');
+  const sidebarToggle = document.querySelector('.sidebar-toggle');
+  const sectionToggles = document.querySelectorAll('.section-toggle');
+  const pageFrame = document.getElementById('page-frame');
 
-    const pageSummaries = {
-      Dashboard: 'Painel principal com visão geral de tickets, ativos, alertas e desempenho do suporte.',
-      Chamados: 'Gerencie solicitações, alinhe prioridades e acelere tempos de resposta.',
-      Atendimentos: 'Acompanhe agentes, filas de atendimento e históricos de SLA em um só lugar.',
-      SLA: 'Visualize acordos de nível de serviço com metas de resolução e indicadores.',
-      Dispositivos: 'Monitoramento de endpoints com detalhes de hardware, rede e disponibilidade.',
-      Alertas: 'Central de alertas com eventos críticos, notificações e histórico de ocorrências.',
-      Inventário: 'Gestão de inventário de ativos, licenças e garantias com visibilidade total.',
-      Automação: 'Automatize rotinas de manutenção, deploy de scripts e correções remotas.',
-      Clientes: 'Carteira de clientes, contratos e acordos com dados atualizados de atendimento.',
-      Contratos: 'Gerencie contratos, renovação e níveis de serviço com transparência completa.',
-      Relatórios: 'Relatórios personalizados para desempenho, custos, tickets e uptime.',
-      Configurações: 'Ajuste de permissões, integrações, regras de alerta e parâmetros do sistema.'
-    };
+  // Mapa de páginas: data-page → arquivo HTML
+  const pageMap = {
+    'Dashboard':      'pages/dashboard.html',
+    'Chamados':       'pages/chamados.html',
+    'Atendimentos':   'pages/atendimentos.html',
+    'SLA':            'pages/sla.html',
+    'Agendamento':    'pages/agendamento.html',
+    'Dispositivos':   'pages/dispositivos.html',
+    'Alertas':        'pages/alertas.html',
+    'Inventário':     'pages/inventario.html',
+    'Automação':      'pages/automacao.html',
+    'Usuários':       'pages/usuarios.html',
+    'Clientes':       'pages/clientes.html',
+    'Contratos':      'pages/contratos.html',
+    'Relatórios':     'pages/relatorios.html',
+    'Configurações':  'pages/configuracoes.html',
+  };
 
-    function setActiveLink(link) {
-      menuLinks.forEach(item => item.classList.remove('active'));
+  // Navegação pelo menu
+  menuLinks.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+
+      const page = link.dataset.page;
+      const file = pageMap[page];
+      const color = link.dataset.color;
+
+      if (file) {
+        pageFrame.src = file;
+      }
+
+      // Atualiza título da topbar
+      topbarTitle.textContent = page;
+
+      // Atualiza cor da topbar
+      if (color) {
+        document.documentElement.style.setProperty('--topbar', color);
+      }
+
+      // Atualiza link ativo
+      menuLinks.forEach(l => l.classList.remove('active'));
       link.classList.add('active');
-      const pageName = link.dataset.page;
-      const highlightColor = link.dataset.color;
+    });
+  });
 
-      topbar.style.backgroundColor = highlightColor;
-      topbarTitle.textContent = pageName;
-      pageHeading.textContent = pageName;
-      pageDescription.textContent = pageSummaries[pageName] || 'Visualize os dados relevantes do sistema.';
+  // Toggle da sidebar (colapsar/expandir)
+  sidebarToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+    appShell.classList.toggle('sidebar-collapsed');
+  });
+
+  // Toggle de cada seção do menu
+  sectionToggles.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const section = btn.closest('.sidebar-section');
+      section.classList.toggle('collapsed');
+      const expanded = !section.classList.contains('collapsed');
+      btn.setAttribute('aria-expanded', expanded);
+    });
+  });
+
+  // Funções de Perfil e Sair
+  function perfilUsuario(e) {
+    e.preventDefault();
+    const links = document.querySelectorAll('.menu-link');
+    const configLink = Array.from(links).find(l => l.dataset.page === 'Configurações');
+    if (configLink) configLink.click();
+  }
+
+  function sairSistema(e) {
+    e.preventDefault();
+    if(confirm('Tem certeza que deseja sair do sistema?')) {
+      localStorage.removeItem('usuario_logado');
+      window.location.href = 'login.html';
     }
-
-    menuLinks.forEach(link => {
-      link.addEventListener('click', event => {
-        event.preventDefault();
-        setActiveLink(link);
-      });
-    });
-
-    const appShell = document.querySelector('.app-shell');
-    
-    sidebarToggle.addEventListener('click', () => {
-      const collapsed = sidebar.classList.toggle('collapsed');
-      appShell.classList.toggle('sidebar-collapsed');
-      sidebarToggle.setAttribute('aria-label', collapsed ? 'Expandir menu lateral' : 'Minimizar menu lateral');
-    });
-
-    sectionToggles.forEach(button => {
-      button.addEventListener('click', () => {
-        const section = button.closest('.sidebar-section');
-        const isCollapsed = section.classList.toggle('collapsed');
-        button.setAttribute('aria-expanded', !isCollapsed);
-      });
-    });
-
-    const initialLink = document.querySelector('.menu-link.active');
-    if (initialLink) setActiveLink(initialLink);
+  }
   </script>
 </body>
 </html>

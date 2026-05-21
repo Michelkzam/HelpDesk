@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dispositivos - Helpdesk & RMM</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .dispositivos-container {
+      padding: 32px;
+    }
+
+    .dispositivos-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .dispositivos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .dispositivo-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-left: 4px solid var(--topbar);
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .dispositivo-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .dispositivo-status {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #4caf50;
+      animation: pulse 2s infinite;
+    }
+
+    .dispositivo-status.offline {
+      background: #bdbdbd;
+      animation: none;
+    }
+
+    .dispositivo-status.alerta {
+      background: #ff9800;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .dispositivo-nome {
+      font-weight: 600;
+      color: #253858;
+      margin-bottom: 4px;
+      font-size: 1.1rem;
+    }
+
+    .dispositivo-so {
+      font-size: 0.9rem;
+      color: #6a7c93;
+      margin-bottom: 4px;
+    }
+
+    .dispositivo-versao {
+      font-size: 0.85rem;
+      color: #999;
+      margin-bottom: 16px;
+    }
+
+    .dispositivo-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0;
+      font-size: 0.95rem;
+    }
+
+    .dispositivo-info strong {
+      color: #253858;
+      min-width: 60px;
+    }
+
+    .barra-uso {
+      width: 100%;
+      height: 6px;
+      background: #e0e0e0;
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 4px 0 8px 0;
+    }
+
+    .barra-preenchida {
+      height: 100%;
+      background: #4caf50;
+      transition: all 0.2s;
+    }
+
+    .barra-preenchida.alerta {
+      background: #ff9800;
+    }
+
+    .barra-preenchida.critico {
+      background: #f44336;
+    }
+
+    .dispositivo-temperatura {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #f7fafc;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      margin-top: 8px;
+    }
+
+    .dispositivo-temperatura.alerta {
+      background: #fff3e0;
+      color: #f57c00;
+    }
+
+    .dispositivo-temperatura.critico {
+      background: #ffebee;
+      color: #f44336;
+    }
+
+    .btn-detalhes {
+      background: var(--topbar);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      margin-top: 12px;
+      width: 100%;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-detalhes:hover {
+      opacity: 0.9;
+    }
+
+    .filtros {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .filtro {
+      padding: 8px 16px;
+      background: #f7fafc;
+      border: 1px solid #d8e2ed;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filtro:hover {
+      background: #eef5ff;
+    }
+
+    .filtro.ativo {
+      background: var(--topbar);
+      color: white;
+      border-color: var(--topbar);
+    }
+
+    .tabela-dispositivos {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .tabela-dispositivos th {
+      background: #f7fafc;
+      padding: 16px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 2px solid #d8e2ed;
+      color: #253858;
+      font-size: 0.9rem;
+    }
+
+    .tabela-dispositivos td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.9rem;
+    }
+
+    .tabela-dispositivos tr:hover {
+      background: #f7fafc;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.ativo {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      width: 90%;
+      max-width: 700px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      border-bottom: 1px solid #f0f0f0;
+      padding-bottom: 16px;
+    }
+
+    .modal-titulo {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #253858;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #6a7c93;
+    }
+
+    .detalhe-grupo {
+      margin-bottom: 24px;
+    }
+
+    .detalhe-titulo {
+      font-weight: 600;
+      color: #253858;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .detalhe-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .detalhe-label {
+      color: #6a7c93;
+      font-weight: 500;
+    }
+
+    .detalhe-valor {
+      color: #253858;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="dispositivos-container">
+    <div class="dispositivos-header">
+      <h1>📡 Dispositivos - Monitoramento RMM</h1>
+    </div>
+
+    <div class="filtros">
+      <button class="filtro ativo" onclick="filtrar('todos')">Todos</button>
+      <button class="filtro" onclick="filtrar('online')">Online</button>
+      <button class="filtro" onclick="filtrar('offline')">Offline</button>
+      <button class="filtro" onclick="filtrar('alerta')">Alerta</button>
+    </div>
+
+    <h2>Visão Geral de Dispositivos</h2>
+    <div class="dispositivos-grid" id="dispositivosGrid"></div>
+
+    <h2>Lista Completa de Dispositivos</h2>
+    <table class="tabela-dispositivos">
+      <thead>
+        <tr>
+          <th>Dispositivo</th>
+          <th>SO</th>
+          <th>Versão</th>
+          <th>IP Address</th>
+          <th>CPU</th>
+          <th>RAM</th>
+          <th>Disco</th>
+          <th>Temp</th>
+          <th>Status</th>
+          <th>Última Atualização</th>
+        </tr>
+      </thead>
+      <tbody id="corpoDispositivos"></tbody>
+    </table>
+  </div>
+
+  <!-- Modal de Detalhes -->
+  <div class="modal-overlay" id="modal-detalhes">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-titulo" id="modal-titulo">Detalhes do Dispositivo</div>
+        <button class="modal-close" onclick="fecharModal()">×</button>
+      </div>
+      <div id="modal-conteudo"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3001/api';
+    let dispositivos = [];
+    let filtroAtual = 'todos';
+    let dispositivoSelecionado = null;
+
+    // Dados mock com informações completas do agente RMM
+    const dispositivosMock = [
+      {
+        id: 1,
+        nome_dispositivo: 'DESKTOP-USUARIO1',
+        so: 'Windows',
+        versao_so: '10 (Build 19044)',
+        ip_address: '192.168.1.100',
+        cpu: 'Intel Core i7-10700K @ 3.80GHz',
+        ram: '16 GB DDR4',
+        disco: '512 GB SSD',
+        cpu_uso: 45,
+        ram_uso: 68,
+        disco_uso: 82,
+        temperatura: 62,
+        status: 'online',
+        ultimo_checkin: '2 min',
+        usuario: 'joão.silva',
+        empresa: 'Empresa A Ltda',
+        data_registro: '15/05/2026 14:23',
+        endereco_mac: '00:1A:2B:3C:4D:5E',
+        processadores: 8,
+        memoria_total: 16384
+      },
+      {
+        id: 2,
+        nome_dispositivo: 'LAPTOP-VENDAS',
+        so: 'Windows',
+        versao_so: '11 (Build 22631)',
+        ip_address: '192.168.1.101',
+        cpu: 'Intel Core i5-1135G7 @ 2.40GHz',
+        ram: '8 GB DDR4',
+        disco: '256 GB SSD',
+        cpu_uso: 12,
+        ram_uso: 34,
+        disco_uso: 56,
+        temperatura: 45,
+        status: 'online',
+        ultimo_checkin: '5 min',
+        usuario: 'maria.santos',
+        empresa: 'Empresa B Ltda',
+        data_registro: '10/05/2026 09:15',
+        endereco_mac: '00:1A:2B:3C:4D:5F',
+        processadores: 4,
+        memoria_total: 8192
+      },
+      {
+        id: 3,
+        nome_dispositivo: 'SERVER-BACKUP',
+        so: 'Linux',
+        versao_so: 'Ubuntu 22.04.4 LTS',
+        ip_address: '192.168.1.50',
+        cpu: 'Intel Xeon E5-2680 @ 2.80GHz',
+        ram: '64 GB DDR3',
+        disco: '2 TB SSD RAID',
+        cpu_uso: 78,
+        ram_uso: 92,
+        disco_uso: 88,
+        temperatura: 68,
+        status: 'online',
+        ultimo_checkin: '1 min',
+        usuario: 'sistema',
+        empresa: 'Infraestrutura',
+        data_registro: '01/03/2026 08:00',
+        endereco_mac: '00:1A:2B:3C:4D:60',
+        processadores: 16,
+        memoria_total: 65536
+      },
+      {
+        id: 4,
+        nome_dispositivo: 'DESKTOP-TI',
+        so: 'Windows',
+        versao_so: '10 (Build 19044)',
+        ip_address: '192.168.1.102',
+        cpu: 'AMD Ryzen 5 5600X',
+        ram: '16 GB DDR4',
+        disco: '1 TB NVMe',
+        cpu_uso: 5,
+        ram_uso: 45,
+        disco_uso: 60,
+        temperatura: 42,
+        status: 'offline',
+        ultimo_checkin: '3 horas',
+        usuario: 'carlos.tech',
+        empresa: 'Suporte',
+        data_registro: '20/04/2026 11:30',
+        endereco_mac: '00:1A:2B:3C:4D:61',
+        processadores: 6,
+        memoria_total: 16384
+      },
+      {
+        id: 5,
+        nome_dispositivo: 'WORKSTATION-3D',
+        so: 'Windows',
+        versao_so: '10 (Build 19044)',
+        ip_address: '192.168.1.103',
+        cpu: 'Intel Core i9-12900K @ 3.20GHz',
+        ram: '128 GB DDR5',
+        disco: '4 TB NVMe RAID 0',
+        cpu_uso: 95,
+        ram_uso: 87,
+        disco_uso: 92,
+        temperatura: 78,
+        status: 'online',
+        ultimo_checkin: '1 min',
+        usuario: 'design.team',
+        empresa: 'Agência Criativa',
+        data_registro: '30/01/2026 16:45',
+        endereco_mac: '00:1A:2B:3C:4D:62',
+        processadores: 16,
+        memoria_total: 131072
+      }
+    ];
+
+    async function carregarDispositivos() {
+      try {
+        // Tentar carregar da API
+        const resp = await fetch(`${API_URL}/dispositivos`);
+        if (resp.ok) {
+          dispositivos = await resp.json();
+        } else {
+          dispositivos = dispositivosMock;
+        }
+      } catch (error) {
+        console.log('Usando dados mock');
+        dispositivos = dispositivosMock;
+      }
+      renderizarDispositivos();
+    }
+
+    function renderizarDispositivos() {
+      const grid = document.getElementById('dispositivosGrid');
+      const tbody = document.getElementById('corpoDispositivos');
+
+      let filtrados = dispositivos;
+      if (filtroAtual !== 'todos') {
+        if (filtroAtual === 'alerta') {
+          filtrados = dispositivos.filter(d => d.cpu_uso > 70 || d.ram_uso > 70 || d.temperatura > 70);
+        } else {
+          filtrados = dispositivos.filter(d => d.status === filtroAtual);
+        }
+      }
+
+      grid.innerHTML = filtrados.map(d => {
+        const statusClass = d.cpu_uso > 80 || d.ram_uso > 80 ? 'critico' : d.cpu_uso > 70 || d.ram_uso > 70 ? 'alerta' : '';
+        const statusCard = d.cpu_uso > 70 || d.ram_uso > 70 || d.temperatura > 70 ? 'alerta' : d.status === 'offline' ? 'offline' : '';
+        const tempClass = d.temperatura > 75 ? 'critico' : d.temperatura > 65 ? 'alerta' : '';
+        
+        return `
+          <div class="dispositivo-card">
+            <div class="dispositivo-status ${statusCard}"></div>
+            <div class="dispositivo-nome">${d.nome_dispositivo}</div>
+            <div class="dispositivo-so">${d.so} ${d.versao_so.split(' ')[0]}</div>
+            <div class="dispositivo-versao">${d.empresa}</div>
+            
+            <div class="dispositivo-info">
+              <strong>CPU:</strong>
+              <div style="flex: 1;">
+                <div class="barra-uso">
+                  <div class="barra-preenchida ${statusClass}" style="width: ${d.cpu_uso}%;"></div>
+                </div>
+              </div>
+              ${d.cpu_uso}%
+            </div>
+
+            <div class="dispositivo-info">
+              <strong>RAM:</strong>
+              <div style="flex: 1;">
+                <div class="barra-uso">
+                  <div class="barra-preenchida ${statusClass}" style="width: ${d.ram_uso}%;"></div>
+                </div>
+              </div>
+              ${d.ram_uso}%
+            </div>
+
+            <div class="dispositivo-info">
+              <strong>Disco:</strong>
+              <div style="flex: 1;">
+                <div class="barra-uso">
+                  <div class="barra-preenchida ${statusClass}" style="width: ${d.disco_uso}%;"></div>
+                </div>
+              </div>
+              ${d.disco_uso}%
+            </div>
+
+            <div class="dispositivo-info">
+              <strong>IP:</strong> ${d.ip_address}
+            </div>
+            
+            <div class="dispositivo-temperatura ${tempClass}">
+              🌡️ ${d.temperatura}°C
+            </div>
+
+            <button class="btn-detalhes" onclick="abrirDetalhes(${d.id})">Ver Detalhes</button>
+          </div>
+        `;
+      }).join('');
+
+      tbody.innerHTML = filtrados.map(d => {
+        const statusClass = d.cpu_uso > 80 || d.ram_uso > 80 ? 'critico' : d.cpu_uso > 70 || d.ram_uso > 70 ? 'alerta' : '';
+        const tempClass = d.temperatura > 75 ? 'critico' : d.temperatura > 65 ? 'alerta' : '';
+        
+        return `
+          <tr>
+            <td><strong>${d.nome_dispositivo}</strong></td>
+            <td>${d.so}</td>
+            <td>${d.versao_so}</td>
+            <td><code>${d.ip_address}</code></td>
+            <td>
+              <div class="barra-uso">
+                <div class="barra-preenchida ${statusClass}" style="width: ${d.cpu_uso}%;"></div>
+              </div>
+              ${d.cpu_uso}%
+            </td>
+            <td>
+              <div class="barra-uso">
+                <div class="barra-preenchida ${statusClass}" style="width: ${d.ram_uso}%;"></div>
+              </div>
+              ${d.ram_uso}%
+            </td>
+            <td>
+              <div class="barra-uso">
+                <div class="barra-preenchida ${statusClass}" style="width: ${d.disco_uso}%;"></div>
+              </div>
+              ${d.disco_uso}%
+            </td>
+            <td><span class="dispositivo-temperatura ${tempClass}"> ${d.temperatura}°C</span></td>
+            <td>${d.status === 'online' ? '🟢 Online' : '🔴 Offline'}</td>
+            <td>${d.ultimo_checkin}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filtrar(tipo) {
+      filtroAtual = tipo;
+      document.querySelectorAll('.filtro').forEach(f => f.classList.remove('ativo'));
+      event.target.classList.add('ativo');
+      renderizarDispositivos();
+    }
+
+    function abrirDetalhes(id) {
+      dispositivoSelecionado = dispositivos.find(d => d.id === id);
+      if (!dispositivoSelecionado) return;
+
+      const d = dispositivoSelecionado;
+      const statusClass = d.cpu_uso > 80 || d.ram_uso > 80 ? 'Crítico' : d.cpu_uso > 70 || d.ram_uso > 70 ? 'Alerta' : 'Normal';
+      
+      document.getElementById('modal-titulo').textContent = `${d.nome_dispositivo}`;
+      document.getElementById('modal-conteudo').innerHTML = `
+        <div class="detalhe-grupo">
+          <div class="detalhe-titulo">📊 Status em Tempo Real</div>
+          <div class="detalhe-item">
+            <span class="detalhe-label">Status</span>
+            <span class="detalhe-valor">${d.status === 'online' ? '🟢 Online' : '🔴 Offline'}</span>
+          </div>
+          <div class="detalhe-item">
+            <span class="detalhe-label">Último Checkin</span>
+            <span class="detalhe-valor">${d.ultimo_checkin}</span>
+          </div>
+          <div class="detalhe-item">
+            <span class="detalhe-label">CPU</span>
+            <span class="detalhe-valor">${d.cpu_uso}%</span>
+          </div>
+          <div class="detalhe-item">
+            <span class="detalhe-label">RAM</span>
+            <span class="detalhe-valor">${d.ram_uso}%</span>
+          </div>
+          <div class="detalhe-item">
+            <span class="detalhe-label">Disco</span>
+            <span class="detalhe-valor">${d.disco_uso}%</span>
+          </div>
+          <div class="detalhe-item">
+            <span class="detalhe-label">Temperatura</span>
+            <span class="detalhe-valor">🌡️ ${d.temperatura}°C</span>
+          </div>
+        </div>
+
+        <div class="detalhe-grupo">
+          <div class="detalhe-titulo">🖥️ Informações do Dispositivo</div>
+          <div class="detalhe-item">
+            <span class="detalhe-label">Nome</span>
+            <span class="detalhe-valor">${d.nome_dispositivo}</span>
+          </div>
+          <div class="detalhe-item">
+            <span class="detalhe-label">Sistema Operacional</span>
+            <span class="detalhe-valor">${d.so} ${d.versao_so}</span>
+          </div>
+          <div class="detalhe-item">
+            <span class="detalhe-label">IP Address</span>
+            <span class="detalhe-valor"><code>${d.ip_address}</code></span>
+          </div>
+          <div class="detalhe-item">
+            <span class="detalhe-label">MAC Address</span>
+            <span class="detalhe-valor"><code>${d.endereco_mac}</code></span>
+          </div>
+        </div>
+
+        <div class="detalhe-grupo">
+          <div class="detalhe-titulo">⚙️ Hardware</div>
+          <div class="detalhe-item">
+            <span class="detalhe-label">Processador</span>
+            <span class="detalhe-valor">${d.cpu}</span>
+          </div>
+          <div class="detalhe-item">
+            <span class="detalhe-label">Núcleos</span>
+            <span class="detalhe-valor">${d.processadores}</span>
+          </div>
+          <div class="detalhe-item">
+            <span class="detalhe-label">Memória RAM</span>
+            <span class="detalhe-valor">${d.ram}</span>
+          </div>
+          <div class="detalhe-item">
+            <span class="detalhe-label">Armazenamento</span>
+            <span class="detalhe-valor">${d.disco}</span>
+          </div>
+        </div>
+
+        <div class="detalhe-grupo">
+          <div class="detalhe-titulo">👤 Responsável</div>
+          <div class="detalhe-item">
+            <span class="detalhe-label">Usuário</span>
+            <span class="detalhe-valor">${d.usuario}</span>
+          </div>
+          <div class="detalhe-item">
+            <span class="detalhe-label">Empresa</span>
+            <span class="detalhe-valor">${d.empresa}</span>
+          </div>
+        </div>
+
+        <div class="detalhe-grupo">
+          <div class="detalhe-titulo">📅 Histórico</div>
+          <div class="detalhe-item">
+            <span class="detalhe-label">Data de Registro</span>
+            <span class="detalhe-valor">${d.data_registro}</span>
+          </div>
+          <div class="detalhe-item">
+            <span class="detalhe-label">Último Checkin</span>
+            <span class="detalhe-valor">${d.ultimo_checkin}</span>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('modal-detalhes').classList.add('ativo');
+    }
+
+    function fecharModal() {
+      document.getElementById('modal-detalhes').classList.remove('ativo');
+      dispositivoSelecionado = null;
+    }
+
+    // Carregar ao iniciar
+    carregarDispositivos();
+  </script>
+</body>
+</html>

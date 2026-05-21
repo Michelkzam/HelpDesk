@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chamados - Helpdesk & RMM</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .chamados-container {
+      padding: 32px;
+    }
+
+    .header-chamados {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .btn-novo {
+      background: var(--topbar);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+
+    .btn-novo:hover {
+      opacity: 0.9;
+    }
+
+    .filtros {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .filtro {
+      padding: 8px 16px;
+      background: #f7fafc;
+      border: 1px solid #d8e2ed;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filtro.ativo {
+      background: var(--topbar);
+      color: white;
+      border-color: var(--topbar);
+    }
+
+    .tabela-chamados {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .tabela-chamados th {
+      background: #f7fafc;
+      padding: 16px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 1px solid #d8e2ed;
+    }
+
+    .tabela-chamados td {
+      padding: 16px;
+      border-bottom: 1px solid #e8eef7;
+    }
+
+    .tabela-chamados tr:hover {
+      background: #fafbfc;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .status-aberto {
+      background: #fff3e0;
+      color: #f57c00;
+    }
+
+    .status-progresso {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+
+    .status-fechado {
+      background: #e8f5e9;
+      color: #388e3c;
+    }
+
+    .prioridade-alta {
+      color: #f44336;
+    }
+
+    .prioridade-media {
+      color: #ff9800;
+    }
+
+    .prioridade-baixa {
+      color: #4caf50;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.ativo {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #253858;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d8e2ed;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-primario {
+      background: var(--topbar);
+      color: white;
+    }
+
+    .btn-primario:hover {
+      opacity: 0.9;
+    }
+
+    .btn-secundario {
+      background: #f7fafc;
+      color: #253858;
+      border: 1px solid #d8e2ed;
+    }
+
+    .btn-secundario:hover {
+      background: #eef5ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="chamados-container">
+    <div class="header-chamados">
+      <h1>Chamados</h1>
+      <button class="btn-novo" onclick="abrirModalNovoChamado()">+ Novo Chamado</button>
+    </div>
+
+    <div class="filtros">
+      <button class="filtro ativo" onclick="filtrarChamados('todos')">Todos</button>
+      <button class="filtro" onclick="filtrarChamados('aberto')">Abertos</button>
+      <button class="filtro" onclick="filtrarChamados('em_progresso')">Em Progresso</button>
+      <button class="filtro" onclick="filtrarChamados('fechado')">Fechados</button>
+    </div>
+
+    <table class="tabela-chamados" id="tabelaChamados">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Título</th>
+          <th>Prioridade</th>
+          <th>Status</th>
+          <th>Data</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="corpoChamados"></tbody>
+    </table>
+  </div>
+
+  <!-- Modal Novo Chamado -->
+  <div class="modal" id="modalNovoChamado">
+    <div class="modal-content">
+      <h2>Novo Chamado</h2>
+      <form id="formNovoChamado">
+        <div class="form-group">
+          <label>Título</label>
+          <input type="text" name="titulo" required>
+        </div>
+        <div class="form-group">
+          <label>Descrição</label>
+          <textarea name="descricao" required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Prioridade</label>
+          <select name="prioridade" required>
+            <option value="baixa">Baixa</option>
+            <option value="media" selected>Média</option>
+            <option value="alta">Alta</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Categoria</label>
+          <select name="categoria" required>
+            <option value="">Selecione uma categoria</option>
+            <option value="suporte">Suporte</option>
+            <option value="manutencao">Manutenção</option>
+            <option value="instalacao">Instalação</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secundario" onclick="fecharModal('modalNovoChamado')">Cancelar</button>
+          <button type="submit" class="btn btn-primario">Criar Chamado</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3001/api';
+    let usuario = JSON.parse(sessionStorage.getItem('usuario'));
+    let filtroAtual = 'todos';
+
+    async function carregarChamados() {
+      try {
+        let url = `${API_URL}/chamados`;
+        if (usuario.tipo === 'cliente') {
+          url += `?usuario_id=${usuario.id}`;
+        }
+        if (filtroAtual !== 'todos') {
+          url += `&status=${filtroAtual}`;
+        }
+
+        const resp = await fetch(url);
+        const chamados = await resp.json();
+
+        const tbody = document.getElementById('corpoChamados');
+        tbody.innerHTML = chamados.map(c => {
+          const data = new Date(c.data_criacao).toLocaleDateString('pt-BR');
+          return `
+            <tr>
+              <td><strong>${c.id.substring(0, 8)}</strong></td>
+              <td>${c.titulo}</td>
+              <td><span class="prioridade-${c.prioridade}">${c.prioridade}</span></td>
+              <td><span class="status-badge status-${c.status}">${c.status}</span></td>
+              <td>${data}</td>
+              <td>
+                <button onclick="verDetalhes('${c.id}')" style="background: none; border: none; color: #3f51b5; cursor: pointer; text-decoration: underline;">Ver</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (error) {
+        console.error('Erro ao carregar chamados:', error);
+      }
+    }
+
+    function filtrarChamados(status) {
+      filtroAtual = status;
+      document.querySelectorAll('.filtro').forEach(b => b.classList.remove('ativo'));
+      event.target.classList.add('ativo');
+      carregarChamados();
+    }
+
+    function abrirModalNovoChamado() {
+      document.getElementById('modalNovoChamado').classList.add('ativo');
+    }
+
+    function fecharModal(id) {
+      document.getElementById(id).classList.remove('ativo');
+    }
+
+    document.getElementById('formNovoChamado').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const dados = new FormData(form);
+
+      try {
+        const resp = await fetch(`${API_URL}/chamados`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            titulo: dados.get('titulo'),
+            descricao: dados.get('descricao'),
+            prioridade: dados.get('prioridade'),
+            categoria: dados.get('categoria'),
+            usuario_id: usuario.id
+          })
+        });
+
+        if (resp.ok) {
+          alert('Chamado criado com sucesso!');
+          fecharModal('modalNovoChamado');
+          form.reset();
+          carregarChamados();
+        }
+      } catch (error) {
+        alert('Erro ao criar chamado');
+        console.error(error);
+      }
+    });
+
+    function verDetalhes(chamadoId) {
+      alert('Detalhes do chamado: ' + chamadoId);
+    }
+
+    carregarChamados();
+  </script>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clientes - Helpdesk & RMM</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .clientes-container {
+      padding: 32px;
+    }
+
+    .header-clientes {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .btn-novo {
+      background: var(--topbar);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .clientes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .cliente-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-top: 4px solid var(--topbar);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .cliente-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+    }
+
+    .cliente-logo {
+      width: 60px;
+      height: 60px;
+      background: #eef5ff;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--topbar);
+      margin-bottom: 16px;
+    }
+
+    .cliente-nome {
+      font-weight: 600;
+      color: #253858;
+      margin-bottom: 4px;
+      font-size: 1.1rem;
+    }
+
+    .cliente-info {
+      color: #6a7c93;
+      font-size: 0.9rem;
+      margin: 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cliente-status {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+
+    .cliente-acoes {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .btn-acao {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #d8e2ed;
+      background: #f7fafc;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .btn-acao:hover {
+      background: #eef5ff;
+      border-color: var(--topbar);
+    }
+
+    .filtros {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .filtro {
+      padding: 8px 16px;
+      background: #f7fafc;
+      border: 1px solid #d8e2ed;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .filtro.ativo {
+      background: var(--topbar);
+      color: white;
+    }
+
+    .tabela-clientes {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .tabela-clientes th {
+      background: #f7fafc;
+      padding: 16px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 1px solid #d8e2ed;
+    }
+
+    .tabela-clientes td {
+      padding: 16px;
+      border-bottom: 1px solid #e8eef7;
+    }
+  </style>
+</head>
+<body>
+  <div class="clientes-container">
+    <div class="header-clientes">
+      <h1>Clientes</h1>
+      <button class="btn-novo" onclick="novoCliente()">+ Novo Cliente</button>
+    </div>
+
+    <div class="filtros">
+      <button class="filtro ativo" onclick="filtrar('todos')">Todos</button>
+      <button class="filtro" onclick="filtrar('ativo')">Ativos</button>
+      <button class="filtro" onclick="filtrar('inativo')">Inativos</button>
+    </div>
+
+    <h2>Visão Rápida</h2>
+    <div class="clientes-grid" id="clientesGrid"></div>
+
+    <h2>Lista Completa</h2>
+    <table class="tabela-clientes">
+      <thead>
+        <tr>
+          <th>Empresa</th>
+          <th>Contato</th>
+          <th>Email</th>
+          <th>Telefone</th>
+          <th>Status</th>
+          <th>Desde</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="corpoClientes"></tbody>
+    </table>
+  </div>
+
+  <script>
+    const clientes = [
+      {
+        id: 1,
+        empresa: 'Tech Solutions',
+        sigla: 'TS',
+        contato: 'João Silva',
+        email: 'joao@techsolutions.com.br',
+        telefone: '(11) 3333-3333',
+        status: 'ativo',
+        desde: '10/01/2022',
+        dispositivos: 25
+      },
+      {
+        id: 2,
+        empresa: 'Consultoria Global',
+        sigla: 'CG',
+        contato: 'Maria Santos',
+        email: 'maria@consulta.com.br',
+        telefone: '(21) 2222-2222',
+        status: 'ativo',
+        desde: '05/06/2023',
+        dispositivos: 15
+      },
+      {
+        id: 3,
+        empresa: 'Comércio XYZ',
+        sigla: 'CX',
+        contato: 'Pedro Costa',
+        email: 'pedro@comercio.com.br',
+        telefone: '(31) 1111-1111',
+        status: 'ativo',
+        desde: '20/03/2021',
+        dispositivos: 45
+      },
+      {
+        id: 4,
+        empresa: 'Indústria ABC',
+        sigla: 'IA',
+        contato: 'Carlos Oliveira',
+        email: 'carlos@industria.com.br',
+        telefone: '(41) 4444-4444',
+        status: 'inativo',
+        desde: '15/09/2020',
+        dispositivos: 12
+      }
+    ];
+
+    function renderizarClientes() {
+      const grid = document.getElementById('clientesGrid');
+      const tbody = document.getElementById('corpoClientes');
+
+      grid.innerHTML = clientes.map(c => `
+        <div class="cliente-card">
+          <div class="cliente-logo">${c.sigla}</div>
+          <div class="cliente-nome">${c.empresa}</div>
+          <div class="cliente-info">👤 ${c.contato}</div>
+          <div class="cliente-info">📧 ${c.email}</div>
+          <div class="cliente-info">📞 ${c.telefone}</div>
+          <div class="cliente-info">💻 ${c.dispositivos} dispositivos</div>
+          <span class="cliente-status">${c.status === 'ativo' ? '✓ Ativo' : '✗ Inativo'}</span>
+          <div class="cliente-acoes">
+            <button class="btn-acao" onclick="verDetalhes(${c.id})">Detalhes</button>
+            <button class="btn-acao" onclick="editar(${c.id})">Editar</button>
+          </div>
+        </div>
+      `).join('');
+
+      tbody.innerHTML = clientes.map(c => `
+        <tr>
+          <td><strong>${c.empresa}</strong></td>
+          <td>${c.contato}</td>
+          <td>${c.email}</td>
+          <td>${c.telefone}</td>
+          <td>${c.status === 'ativo' ? '✓ Ativo' : '✗ Inativo'}</td>
+          <td>${c.desde}</td>
+          <td>
+            <button onclick="verDetalhes(${c.id})" style="background: none; border: none; color: #3f51b5; cursor: pointer; margin-right: 12px;">Detalhes</button>
+            <button onclick="editar(${c.id})" style="background: none; border: none; color: #3f51b5; cursor: pointer;">Editar</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filtrar(tipo) {
+      document.querySelectorAll('.filtro').forEach(f => f.classList.remove('ativo'));
+      event.target.classList.add('ativo');
+      renderizarClientes();
+    }
+
+    function novoCliente() {
+      alert('Abrir formulário para novo cliente');
+    }
+
+    function verDetalhes(id) {
+      alert('Detalhes do cliente: ' + id);
+    }
+
+    function editar(id) {
+      alert('Editar cliente: ' + id);
+    }
+
+    renderizarClientes();
+  </script>
+</body>
+</html>

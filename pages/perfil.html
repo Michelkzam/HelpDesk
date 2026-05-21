@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil - Helpdesk & RMM</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .perfil-container {
+      padding: 32px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .perfil-header {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .perfil-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: var(--topbar);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      margin: 0 auto 16px;
+      font-weight: 700;
+    }
+
+    .perfil-nome {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #253858;
+      margin-bottom: 8px;
+    }
+
+    .perfil-tipo {
+      font-size: 0.95rem;
+      color: #6a7c93;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .perfil-status {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 6px 16px;
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .perfil-secoes {
+      display: grid;
+      gap: 24px;
+    }
+
+    .perfil-secao {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .secao-titulo {
+      font-weight: 600;
+      color: #253858;
+      margin-bottom: 16px;
+      font-size: 1.1rem;
+      border-bottom: 2px solid #eef5ff;
+      padding-bottom: 12px;
+    }
+
+    .info-item {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f7fafc;
+    }
+
+    .info-item:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      font-weight: 600;
+      color: #253858;
+    }
+
+    .info-valor {
+      color: #6a7c93;
+    }
+
+    .chat-secao {
+      background: #f7fafc;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 16px;
+    }
+
+    .btn-chat {
+      background: var(--topbar);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      width: 100%;
+      transition: opacity 0.2s;
+    }
+
+    .btn-chat:hover {
+      opacity: 0.9;
+    }
+
+    .formulario-chamado {
+      margin-top: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #253858;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d8e2ed;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .btn-enviar {
+      background: var(--topbar);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-enviar:hover {
+      opacity: 0.9;
+    }
+
+    .chamados-recentes {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .chamado-item {
+      background: white;
+      padding: 12px;
+      border-radius: 6px;
+      border-left: 4px solid var(--topbar);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chamado-info {
+      flex: 1;
+    }
+
+    .chamado-titulo {
+      font-weight: 600;
+      color: #253858;
+    }
+
+    .chamado-status {
+      font-size: 0.85rem;
+      color: #6a7c93;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #eef5ff;
+      color: var(--topbar);
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="perfil-container">
+    <div class="perfil-header">
+      <div class="perfil-avatar" id="perfilAvatar">JS</div>
+      <div class="perfil-nome" id="perfilNome">João Silva</div>
+      <div class="perfil-tipo">Cliente</div>
+      <span class="perfil-status">✓ Online</span>
+    </div>
+
+    <div class="perfil-secoes">
+      <!-- Informações Gerais -->
+      <div class="perfil-secao">
+        <div class="secao-titulo">Informações Gerais</div>
+        <div class="info-item">
+          <div class="info-label">Email:</div>
+          <div class="info-valor">joao.silva@example.com</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Telefone:</div>
+          <div class="info-valor">(11) 99999-9999</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Empresa:</div>
+          <div class="info-valor">Tech Solutions</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Departamento:</div>
+          <div class="info-valor">TI</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Membro desde:</div>
+          <div class="info-valor">10 de Janeiro de 2022</div>
+        </div>
+      </div>
+
+      <!-- Chat ao Vivo -->
+      <div class="perfil-secao">
+        <div class="secao-titulo">💬 Chat ao Vivo</div>
+        <p style="color: #6a7c93; margin: 0 0 16px 0;">Converse com nosso suporte técnico em tempo real</p>
+        <div class="chat-secao">
+          <div style="height: 250px; background: white; border-radius: 8px; padding: 16px; margin-bottom: 12px; overflow-y: auto; border: 1px solid #d8e2ed;">
+            <div style="text-align: center; color: #bdbdbd; padding: 50px 20px;">
+              <p>Clique em "Iniciar Chat" para começar uma conversa</p>
+            </div>
+          </div>
+          <button class="btn-chat" onclick="iniciarChat()">💬 Iniciar Chat com Suporte</button>
+        </div>
+      </div>
+
+      <!-- Abrir Novo Chamado -->
+      <div class="perfil-secao">
+        <div class="secao-titulo">🎫 Abrir Novo Chamado</div>
+        <form class="formulario-chamado" onsubmit="enviarChamado(event)">
+          <div class="form-group">
+            <label>Título do Problema</label>
+            <input type="text" placeholder="Ex: Computador não liga" required>
+          </div>
+          <div class="form-group">
+            <label>Descrição Detalhada</label>
+            <textarea placeholder="Descreva o problema com o máximo de detalhes..." required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Prioridade</label>
+            <select required>
+              <option value="">Selecione a prioridade</option>
+              <option value="baixa">Baixa - Não é urgente</option>
+              <option value="media">Média - Pode aguardar 24h</option>
+              <option value="alta">Alta - Precisa de atenção urgente</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-enviar">Abrir Chamado</button>
+        </form>
+      </div>
+
+      <!-- Chamados Recentes -->
+      <div class="perfil-secao">
+        <div class="secao-titulo">Seus Chamados Recentes</div>
+        <div class="chamados-recentes" id="chamadosRecentes"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const usuario = JSON.parse(sessionStorage.getItem('usuario'));
+    const API_URL = 'http://localhost:3001/api';
+
+    // Atualizar perfil
+    if (usuario) {
+      const iniciais = usuario.nome.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+      document.getElementById('perfilAvatar').textContent = iniciais;
+      document.getElementById('perfilNome').textContent = usuario.nome;
+    }
+
+    function carregarChamados() {
+      const chamados = [
+        {id: 'CH-001', titulo: 'Impressora não funciona', status: 'Em Progresso', data: '20/05/2026'},
+        {id: 'CH-002', titulo: 'Problema com internet', status: 'Aberto', data: '18/05/2026'},
+        {id: 'CH-003', titulo: 'Atualização de software', status: 'Fechado', data: '15/05/2026'}
+      ];
+
+      const container = document.getElementById('chamadosRecentes');
+      container.innerHTML = chamados.map(c => `
+        <div class="chamado-item">
+          <div class="chamado-info">
+            <div class="chamado-titulo">${c.titulo}</div>
+            <div class="chamado-status">${c.id} • ${c.data}</div>
+          </div>
+          <span class="status-badge">${c.status}</span>
+        </div>
+      `).join('');
+    }
+
+    function iniciarChat() {
+      alert('Iniciando chat com suporte...');
+      // Redirecionar para página de chat
+    }
+
+    function enviarChamado(e) {
+      e.preventDefault();
+      alert('Chamado aberto com sucesso!');
+      e.target.reset();
+    }
+
+    carregarChamados();
+  </script>
+</body>
+</html>

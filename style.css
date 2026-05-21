@@ -179,8 +179,8 @@ body {
 .sidebar-menu {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  max-height: 150px;
+  gap: 2px;
+  max-height: 160px;
   opacity: 1;
   transition: max-height 0.28s ease, opacity 0.28s ease;
 }
@@ -280,6 +280,8 @@ body {
 .main-area {
   display: flex;
   flex-direction: column;
+  height: 100vh;        /* ← AJUSTE: ocupa toda a altura da tela */
+  overflow: hidden;     /* ← AJUSTE: evita scroll duplo */
 }
 
 .topbar {
@@ -291,6 +293,7 @@ body {
   padding: 22px 32px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.18);
   transition: background 0.25s ease;
+  flex-shrink: 0;       /* ← AJUSTE: topbar não encolhe */
 }
 
 .topbar-title {
@@ -305,37 +308,40 @@ body {
   font-weight: 600;
 }
 
-
+/* =============================================
+   ÁREA DE CONTEÚDO — AJUSTADA PARA O IFRAME
+   ============================================= */
 .content {
-  padding: 4px 0px;
+  flex: 1;              /* ← ocupa todo o espaço restante abaixo da topbar */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;     /* ← sem scroll externo */
+  padding: 0;           /* ← sem padding para o iframe encostar nas bordas */
   background: var(--bg);
-  flex: 1;
 }
 
 .content-box {
+  flex: 1;              /* ← expande para preencher .content */
+  display: flex;
+  flex-direction: column;
   width: 100%;
+  height: 100%;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 2px;
-  padding: 48px;
-  min-height: calc(100vh - 75px);
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
+  padding: 0;           /* ← sem padding para o iframe usar o espaço todo */
+  margin: 0;
+  overflow: hidden;
 }
 
-.content-box h1 {
-  margin: 0;
-  font-size: 2.6rem;
-  letter-spacing: -0.03em;
+#page-frame {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
 }
-
-.content-box p {
-  margin: 0;
-  color: var(--muted);
-  line-height: 1.85;
-  max-width: 820px;
-}
+/* ============================================= */
 
 .feature-list {
   list-style: none;
@@ -375,11 +381,12 @@ body {
   }
 
   .content {
-    padding: 32px 24px;
+    padding: 0;
   }
 
   .content-box {
-    padding: 32px;
+    padding: 0;
     min-height: auto;
+    border-radius: 0;
   }
 }

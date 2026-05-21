@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SLA - Helpdesk & RMM</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .sla-container {
+      padding: 32px;
+    }
+
+    .sla-header {
+      margin-bottom: 32px;
+    }
+
+    .sla-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .sla-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-left: 4px solid var(--topbar);
+    }
+
+    .sla-titulo {
+      font-weight: 600;
+      color: #253858;
+      margin-bottom: 16px;
+      font-size: 1.1rem;
+    }
+
+    .sla-metrica {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .sla-metrica:last-child {
+      border-bottom: none;
+    }
+
+    .metrica-label {
+      font-size: 0.95rem;
+      color: #6a7c93;
+    }
+
+    .metrica-valor {
+      font-weight: 600;
+      color: var(--topbar);
+      font-size: 1.1rem;
+    }
+
+    .barra-progresso {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+
+    .barra-fill {
+      height: 100%;
+      background: var(--topbar);
+      transition: width 0.3s ease;
+    }
+
+    .tabela-sla {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .tabela-sla th {
+      background: #f7fafc;
+      padding: 16px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 1px solid #d8e2ed;
+    }
+
+    .tabela-sla td {
+      padding: 16px;
+      border-bottom: 1px solid #e8eef7;
+    }
+
+    .status-sla {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .status-ok {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .status-atencao {
+      background: #fff3e0;
+      color: #f57c00;
+    }
+
+    .status-critico {
+      background: #ffebee;
+      color: #c62828;
+    }
+  </style>
+</head>
+<body>
+  <div class="sla-container">
+    <div class="sla-header">
+      <h1>SLA (Service Level Agreement)</h1>
+      <p style="color: #6a7c93; margin: 8px 0 0 0;">Monitoramento de Acordos de Nível de Serviço</p>
+    </div>
+
+    <div class="sla-grid">
+      <div class="sla-card">
+        <div class="sla-titulo">Atendimento - Resposta</div>
+        <div class="sla-metrica">
+          <span class="metrica-label">Tempo Máximo</span>
+          <span class="metrica-valor">4 horas</span>
+        </div>
+        <div class="barra-progresso">
+          <div class="barra-fill" style="width: 35%;"></div>
+        </div>
+        <div class="sla-metrica">
+          <span class="metrica-label">Compliance</span>
+          <span class="metrica-valor">98.5%</span>
+        </div>
+        <div style="text-align: center; margin-top: 12px;">
+          <span class="status-sla status-ok">✓ Ok</span>
+        </div>
+      </div>
+
+      <div class="sla-card">
+        <div class="sla-titulo">Chamados Críticos</div>
+        <div class="sla-metrica">
+          <span class="metrica-label">Tempo Máximo</span>
+          <span class="metrica-valor">1 hora</span>
+        </div>
+        <div class="barra-progresso">
+          <div class="barra-fill" style="width: 75%;"></div>
+        </div>
+        <div class="sla-metrica">
+          <span class="metrica-label">Compliance</span>
+          <span class="metrica-valor">96.2%</span>
+        </div>
+        <div style="text-align: center; margin-top: 12px;">
+          <span class="status-sla status-atencao">⚠ Atenção</span>
+        </div>
+      </div>
+
+      <div class="sla-card">
+        <div class="sla-titulo">Resolução Completa</div>
+        <div class="sla-metrica">
+          <span class="metrica-label">Tempo Máximo</span>
+          <span class="metrica-valor">48 horas</span>
+        </div>
+        <div class="barra-progresso">
+          <div class="barra-fill" style="width: 52%;"></div>
+        </div>
+        <div class="sla-metrica">
+          <span class="metrica-label">Compliance</span>
+          <span class="metrica-valor">94.1%</span>
+        </div>
+        <div style="text-align: center; margin-top: 12px;">
+          <span class="status-sla status-atencao">⚠ Atenção</span>
+        </div>
+      </div>
+    </div>
+
+    <h2>Detalhes por Cliente</h2>
+    <table class="tabela-sla">
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Chamados (Total)</th>
+          <th>Atendimento</th>
+          <th>Resolução</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="corpoChamados"></tbody>
+    </table>
+  </div>
+
+  <script>
+    const dados = [
+      {cliente: 'Empresa A', total: 45, atendimento: 98.5, resolucao: 95.2, status: 'ok'},
+      {cliente: 'Empresa B', total: 32, atendimento: 96.1, resolucao: 92.0, status: 'atencao'},
+      {cliente: 'Empresa C', total: 28, atendimento: 99.2, resolucao: 97.5, status: 'ok'},
+      {cliente: 'Empresa D', total: 15, atendimento: 85.0, resolucao: 80.5, status: 'critico'},
+      {cliente: 'Empresa E', total: 52, atendimento: 97.3, resolucao: 93.8, status: 'atencao'}
+    ];
+
+    function renderizarTabela() {
+      const tbody = document.getElementById('corpoChamados');
+      tbody.innerHTML = dados.map(d => `
+        <tr>
+          <td>${d.cliente}</td>
+          <td><strong>${d.total}</strong></td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="barra-progresso" style="width: 80px;">
+                <div class="barra-fill" style="width: ${d.atendimento}%;"></div>
+              </div>
+              ${d.atendimento}%
+            </div>
+          </td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="barra-progresso" style="width: 80px;">
+                <div class="barra-fill" style="width: ${d.resolucao}%;"></div>
+              </div>
+              ${d.resolucao}%
+            </div>
+          </td>
+          <td><span class="status-sla status-${d.status}">${d.status.charAt(0).toUpperCase() + d.status.slice(1)}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    renderizarTabela();
+  </script>
+</body>
+</html>

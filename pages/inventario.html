@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventário - Helpdesk & RMM</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .inventario-container {
+      padding: 32px;
+    }
+
+    .header-inventario {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .btn-novo {
+      background: var(--topbar);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .filtros {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .filtro {
+      padding: 8px 16px;
+      background: #f7fafc;
+      border: 1px solid #d8e2ed;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .filtro.ativo {
+      background: var(--topbar);
+      color: white;
+    }
+
+    .tabela-inventario {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .tabela-inventario th {
+      background: #f7fafc;
+      padding: 16px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 1px solid #d8e2ed;
+    }
+
+    .tabela-inventario td {
+      padding: 16px;
+      border-bottom: 1px solid #e8eef7;
+    }
+
+    .tabela-inventario tr:hover {
+      background: #fafbfc;
+    }
+
+    .item-tipo {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #eef5ff;
+      border-radius: 6px;
+      color: var(--topbar);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .status-ativo {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .status-inativo {
+      background: #f5f5f5;
+      color: #757575;
+    }
+
+    .status-manutencao {
+      background: #fff3e0;
+      color: #f57c00;
+    }
+  </style>
+</head>
+<body>
+  <div class="inventario-container">
+    <div class="header-inventario">
+      <h1>Inventário de Dispositivos e Softwares</h1>
+      <button class="btn-novo" onclick="abrirNovoItem()">+ Novo Item</button>
+    </div>
+
+    <div class="filtros">
+      <button class="filtro ativo" onclick="filtrar('todos')">Todos</button>
+      <button class="filtro" onclick="filtrar('hardware')">Hardware</button>
+      <button class="filtro" onclick="filtrar('software')">Software</button>
+      <button class="filtro" onclick="filtrar('ativo')">Ativos</button>
+      <button class="filtro" onclick="filtrar('inativo')">Inativos</button>
+    </div>
+
+    <table class="tabela-inventario">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Tipo</th>
+          <th>Modelo/Versão</th>
+          <th>Serial/Licença</th>
+          <th>Localização</th>
+          <th>Status</th>
+          <th>Data de Aquisição</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="corpoInventario"></tbody>
+    </table>
+  </div>
+
+  <script>
+    const itens = [
+      {
+        id: 1,
+        nome: 'Computador Desktop',
+        tipo: 'hardware',
+        modelo: 'Dell OptiPlex 7090',
+        serial: 'DJ1234567890',
+        localizacao: 'Sala 101',
+        status: 'ativo',
+        data: '15/01/2023'
+      },
+      {
+        id: 2,
+        nome: 'Notebook',
+        tipo: 'hardware',
+        modelo: 'Lenovo ThinkPad X1',
+        serial: 'LN9876543210',
+        localizacao: 'Home Office - João',
+        status: 'ativo',
+        data: '22/03/2023'
+      },
+      {
+        id: 3,
+        nome: 'Microsoft Office 365',
+        tipo: 'software',
+        modelo: 'Versão 2024',
+        serial: 'LIC-OFF365-001',
+        localizacao: 'Rede',
+        status: 'ativo',
+        data: '01/01/2024'
+      },
+      {
+        id: 4,
+        nome: 'Antivírus Kaspersky',
+        tipo: 'software',
+        modelo: 'Enterprise 2024',
+        serial: 'LIC-KASP-001',
+        localizacao: 'Rede',
+        status: 'ativo',
+        data: '10/06/2023'
+      },
+      {
+        id: 5,
+        nome: 'Monitor',
+        tipo: 'hardware',
+        modelo: 'LG 27" 4K',
+        serial: 'LG-MON-5678',
+        localizacao: 'Sala 105',
+        status: 'manutencao',
+        data: '05/02/2022'
+      },
+      {
+        id: 6,
+        nome: 'Impressora Multifuncional',
+        tipo: 'hardware',
+        modelo: 'HP LaserJet Pro',
+        serial: 'HP-PRINT-1234',
+        localizacao: 'Sala de Impressoras',
+        status: 'inativo',
+        data: '20/08/2021'
+      }
+    ];
+
+    function renderizarTabela() {
+      const tbody = document.getElementById('corpoInventario');
+      tbody.innerHTML = itens.map(item => {
+        const statusClass = `status-${item.status}`;
+        const statusTexto = item.status === 'ativo' ? '✓ Ativo' : item.status === 'inativo' ? '✗ Inativo' : '⚠ Manutenção';
+        return `
+          <tr>
+            <td><strong>${item.nome}</strong></td>
+            <td><span class="item-tipo">${item.tipo}</span></td>
+            <td>${item.modelo}</td>
+            <td>${item.serial}</td>
+            <td>${item.localizacao}</td>
+            <td><span class="status-badge ${statusClass}">${statusTexto}</span></td>
+            <td>${item.data}</td>
+            <td>
+              <button onclick="editarItem(${item.id})" style="background: none; border: none; color: #3f51b5; cursor: pointer; margin-right: 12px;">Editar</button>
+              <button onclick="deletarItem(${item.id})" style="background: none; border: none; color: #f44336; cursor: pointer;">Deletar</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filtrar(tipo) {
+      document.querySelectorAll('.filtro').forEach(f => f.classList.remove('ativo'));
+      event.target.classList.add('ativo');
+      renderizarTabela();
+    }
+
+    function abrirNovoItem() {
+      alert('Abrir formulário para novo item');
+    }
+
+    function editarItem(id) {
+      alert('Editar item: ' + id);
+    }
+
+    function deletarItem(id) {
+      if (confirm('Deseja realmente deletar este item?')) {
+        alert('Item deletado!');
+      }
+    }
+
+    renderizarTabela();
+  </script>
+</body>
+</html>

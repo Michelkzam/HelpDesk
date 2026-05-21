@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, sans-serif;
+      background: #f3f7fb;
+      color: #172734;
+      padding: 32px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin: 0 0 8px;
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      color: #6a7c93;
+      line-height: 1.7;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid #d8e2ed;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(36, 88, 163, 0.06);
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 0.85rem;
+      color: #6a7c93;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .card .value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #172734;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Dashboard</h1>
+  <p>Visão geral do sistema de Helpdesk & RMM.</p>
+
+  <div class="cards">
+    <div class="card">
+      <h2>Chamados Abertos</h2>
+      <div class="value">24</div>
+    </div>
+    <div class="card">
+      <h2>Dispositivos Online</h2>
+      <div class="value">138</div>
+    </div>
+    <div class="card">
+      <h2>Alertas Ativos</h2>
+      <div class="value">7</div>
+    </div>
+    <div class="card">
+      <h2>Clientes</h2>
+      <div class="value">42</div>
+    </div>
+  </div>
+
+</body>
+</html>

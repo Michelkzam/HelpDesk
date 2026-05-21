@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Modelo 2T</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      background: #ffffff;
+    }
+
+    .container {
+      border: 2px solid #000;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Cabeçalho */
+    header {
+      display: flex;
+      border-bottom: 2px solid #000;
+    }
+
+    .barra-dashboard {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding: 16px 24px;
+    }
+
+    .barra-dashboard h1 {
+      font-size: 1.2rem;
+      font-weight: bold;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .campo-busca {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 24px;
+      border-left: 2px solid #000;
+    }
+
+    .campo-busca input {
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      width: 180px;
+      outline: none;
+    }
+
+    .campo-busca input:focus {
+      border-color: #000;
+    }
+
+    .campo-busca button {
+      padding: 8px 16px;
+      background-color: #000;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .campo-busca button:hover {
+      background-color: #333;
+    }
+
+    /* Área principal */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+    }
+
+    main p {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #666;
+      text-transform: uppercase;
+      text-align: center;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Cabeçalho -->
+    <header>
+      <div class="barra-dashboard">
+        <h1>Barra Dashboard</h1>
+      </div>
+      <div class="campo-busca">
+        <input type="text" placeholder="Buscar..." />
+        <button>
+          🔍 Buscar
+        </button>
+      </div>
+    </header>
+
+    <!-- Área de Visualização -->
+    <main>
+      <p>
+        Visualização<br/>
+        das<br/>
+        Informações
+      </p>
+    </main>
+
+  </div>
+</body>
+</html>

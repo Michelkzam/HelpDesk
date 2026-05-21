@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alertas - Helpdesk & RMM</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .alertas-container {
+      padding: 32px;
+    }
+
+    .filtros {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .filtro {
+      padding: 8px 16px;
+      background: #f7fafc;
+      border: 1px solid #d8e2ed;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .filtro.ativo {
+      background: var(--topbar);
+      color: white;
+    }
+
+    .alertas-lista {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .alerta-item {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-left: 6px solid #2196f3;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+    }
+
+    .alerta-item.critico {
+      border-left-color: #f44336;
+      background: rgba(244, 67, 54, 0.02);
+    }
+
+    .alerta-item.alerta {
+      border-left-color: #ff9800;
+      background: rgba(255, 152, 0, 0.02);
+    }
+
+    .alerta-item.info {
+      border-left-color: #2196f3;
+    }
+
+    .alerta-conteudo {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .alerta-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .alerta-icone {
+      font-size: 1.5rem;
+    }
+
+    .alerta-titulo {
+      font-weight: 600;
+      color: #253858;
+      font-size: 1rem;
+    }
+
+    .alerta-descricao {
+      color: #6a7c93;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .alerta-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 0.85rem;
+      color: #bdbdbd;
+      flex-wrap: wrap;
+    }
+
+    .alerta-meta span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .alerta-acoes {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .btn-acao {
+      padding: 8px 16px;
+      border: 1px solid #d8e2ed;
+      background: #f7fafc;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-acao:hover {
+      background: #eef5ff;
+      border-color: var(--topbar);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .badge-critico {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .badge-alerta {
+      background: #fff3e0;
+      color: #f57c00;
+    }
+
+    .badge-info {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+
+    .estatisticas {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .stat-numero {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 8px 0;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: #6a7c93;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+  <div class="alertas-container">
+    <h1>Alertas do Sistema</h1>
+
+    <div class="estatisticas">
+      <div class="stat-card">
+        <div class="stat-label">Críticos</div>
+        <div class="stat-numero" style="color: #f44336;">3</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Alertas</div>
+        <div class="stat-numero" style="color: #ff9800;">7</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Informações</div>
+        <div class="stat-numero" style="color: #2196f3;">12</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Resolvidos</div>
+        <div class="stat-numero" style="color: #4caf50;">45</div>
+      </div>
+    </div>
+
+    <div class="filtros">
+      <button class="filtro ativo" onclick="filtrar('todos')">Todos</button>
+      <button class="filtro" onclick="filtrar('critico')">Críticos</button>
+      <button class="filtro" onclick="filtrar('alerta')">Alertas</button>
+      <button class="filtro" onclick="filtrar('info')">Informações</button>
+      <button class="filtro" onclick="filtrar('resolvido')">Resolvidos</button>
+    </div>
+
+    <div class="alertas-lista" id="alertasLista"></div>
+  </div>
+
+  <script>
+    const alertas = [
+      {
+        id: 1,
+        tipo: 'critico',
+        icone: '🔴',
+        titulo: 'Servidor de Banco de Dados Crítico',
+        descricao: 'CPU utilização acima de 95% no servidor DB-01',
+        dispositivo: 'DB-01',
+        hora: '5 min atrás',
+        data: '21/05/2026'
+      },
+      {
+        id: 2,
+        tipo: 'critico',
+        icone: '🔴',
+        titulo: 'Espaço em Disco Crítico',
+        descricao: 'Disco de armazenamento atingiu 98% de capacidade',
+        dispositivo: 'SERVER-BACKUP',
+        hora: '15 min atrás',
+        data: '21/05/2026'
+      },
+      {
+        id: 3,
+        tipo: 'alerta',
+        icone: '🟠',
+        titulo: 'Memória RAM Alta',
+        descricao: 'Utilização de memória acima de 85% em LAPTOP-VENDAS',
+        dispositivo: 'LAPTOP-VENDAS',
+        hora: '32 min atrás',
+        data: '21/05/2026'
+      },
+      {
+        id: 4,
+        tipo: 'alerta',
+        icone: '🟠',
+        titulo: 'Temperatura do Servidor Elevada',
+        descricao: 'Temperatura do processador em 78°C',
+        dispositivo: 'SERVER-WEB',
+        hora: '1 hora atrás',
+        data: '21/05/2026'
+      },
+      {
+        id: 5,
+        tipo: 'info',
+        icone: '🔵',
+        titulo: 'Atualização de Sistema Disponível',
+        descricao: 'Nova versão do software de monitoramento está disponível',
+        dispositivo: 'Sistema',
+        hora: '2 horas atrás',
+        data: '21/05/2026'
+      },
+      {
+        id: 6,
+        tipo: 'info',
+        icone: '🔵',
+        titulo: 'Relatório Diário Gerado',
+        descricao: 'Relatório de monitoramento do dia 21/05 foi gerado com sucesso',
+        dispositivo: 'Sistema',
+        hora: '4 horas atrás',
+        data: '21/05/2026'
+      }
+    ];
+
+    function renderizarAlertas() {
+      const lista = document.getElementById('alertasLista');
+      lista.innerHTML = alertas.map(a => `
+        <div class="alerta-item ${a.tipo}">
+          <div class="alerta-conteudo">
+            <div class="alerta-header">
+              <span class="alerta-icone">${a.icone}</span>
+              <div>
+                <div class="alerta-titulo">${a.titulo}</div>
+                <span class="badge badge-${a.tipo}">${a.tipo.toUpperCase()}</span>
+              </div>
+            </div>
+            <div class="alerta-descricao">${a.descricao}</div>
+            <div class="alerta-meta">
+              <span>📍 ${a.dispositivo}</span>
+              <span>🕐 ${a.hora}</span>
+              <span>📅 ${a.data}</span>
+            </div>
+          </div>
+          <div class="alerta-acoes">
+            <button class="btn-acao" onclick="verDetalhes(${a.id})">Detalhes</button>
+            <button class="btn-acao" onclick="resolverAlerta(${a.id})">Resolver</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filtrar(tipo) {
+      document.querySelectorAll('.filtro').forEach(f => f.classList.remove('ativo'));
+      event.target.classList.add('ativo');
+      renderizarAlertas();
+    }
+
+    function verDetalhes(id) {
+      alert('Detalhes do alerta: ' + id);
+    }
+
+    function resolverAlerta(id) {
+      if (confirm('Deseja resolver este alerta?')) {
+        alert('Alerta resolvido!');
+        renderizarAlertas();
+      }
+    }
+
+    renderizarAlertas();
+  </script>
+</body>
+</html>
