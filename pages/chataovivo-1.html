@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat ao Vivo - Linkzam</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --whatsapp-bg: #e5ddd5;
+            --whatsapp-header: #ededed;
+            --whatsapp-sidebar: #ffffff;
+            --my-message: #dcf8c6;
+            --other-message: #ffffff;
+            --green-check: #53bdeb;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body, html {
+            width: 100%;
+            height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #dadbd3;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Impede rolagem da página inteira */
+        }
+
+        /* Header Superior */
+        #main-header {
+            background: #fff;
+            padding: 10px 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .app-container {
+            display: flex;
+            flex: 1;
+            width: 100%;
+            overflow: hidden;
+            background-color: #f0f2f5;
+        }
+
+        /* Lateral de Contatos (Responsiva) */
+        .sidebar-chat {
+            flex: 0 0 30%;
+            min-width: 280px;
+            max-width: 380px;
+            background: var(--whatsapp-sidebar);
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Janela do Chat */
+        .chat-window {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--whatsapp-bg);
+            /* Papel de parede clássico do WhatsApp */
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+        }
+
+        /* Cabeçalhos */
+        .chat-header {
+            height: 60px;
+            background: var(--whatsapp-header);
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
+
+        .header-icons i {
+            color: #54656f;
+            margin-left: 20px;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        /* Lista de Contatos */
+        .search-chat { padding: 10px; background: #fff; }
+        .search-chat input {
+            width: 100%; padding: 8px 12px; border-radius: 8px;
+            border: none; outline: none; background: #f0f2f5;
+        }
+
+        .contact-list { flex: 1; overflow-y: auto; }
+        .contact-item {
+            display: flex; padding: 12px 15px; border-bottom: 1px solid #f2f2f2;
+            cursor: pointer; align-items: center;
+        }
+        .contact-item:hover { background: #f5f6f6; }
+        .contact-info { margin-left: 15px; flex: 1; }
+        .contact-info h4 { font-size: 1rem; color: #111; margin-bottom: 2px; }
+        .contact-info p { font-size: 0.85rem; color: #666; }
+
+        /* Área de Mensagens */
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .message {
+            max-width: 65%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            position: relative;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+            word-wrap: break-word;
+        }
+        .sent { align-self: flex-end; background: var(--my-message); }
+        .received { align-self: flex-start; background: var(--other-message); }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: #888;
+            text-align: right;
+            margin-top: 4px;
+        }
+
+        /* Campo de Entrada */
+        .chat-input-area {
+            background: var(--whatsapp-header);
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: none;
+            outline: none;
+        }
+
+        .chat-input-area i {
+            color: #54656f;
+            font-size: 1.4rem;
+            cursor: pointer;
+        }
+
+        /* Responsividade para Telas Pequenas */
+        @media (max-width: 768px) {
+            .sidebar-chat { flex: 0 0 80px; min-width: 80px; }
+            .contact-info, .search-chat, .header-icons { display: none; }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar-chat { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <header id="main-header">
+        <div class="breadcrumb"><strong>Linkzam</strong> <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem;"></i> Chat ao Vivo</div>
+        <div>Operador: <strong>Admin</strong></div>
+    </header>
+
+    <div class="app-container">
+        <aside class="sidebar-chat">
+            <div class="chat-header">
+                <div class="avatar"></div>
+                <div class="header-icons">
+                    <i class="fa-solid fa-circle-notch"></i>
+                    <i class="fa-solid fa-message"></i>
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                </div>
+            </div>
+            <div class="search-chat">
+                <input type="text" placeholder="Pesquisar ou começar uma nova conversa">
+            </div>
+            <div class="contact-list">
+                <div class="contact-item" style="background: #ebebeb;">
+                    <div class="avatar"></div>
+                    <div class="contact-info">
+                        <h4>Suporte - Marcos</h4>
+                        <p>Pode me ajudar com o erro?</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="chat-window">
+            <header class="chat-header">
+                <div style="display: flex; align-items: center;">
+                    <div class="avatar"></div>
+                    <div style="margin-left: 15px;">
+                        <h4 style="margin:0">Suporte - Marcos</h4>
+                        <small style="color: #666;">online</small>
+                    </div>
+                </div>
+                <div class="header-icons">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <i class="fa-solid fa-paperclip"></i>
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                </div>
+            </header>
+
+            <div class="chat-messages" id="chat-box">
+                <div class="message received">
+                    Olá! Como posso configurar meu sistema Linkzam?
+                    <div class="message-time">14:05</div>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <i class="fa-regular fa-face-smile"></i>
+                <input type="text" id="chat-input" placeholder="Digite uma mensagem">
+                <i class="fa-solid fa-paper-plane" id="send-btn" style="color: #00a884;"></i>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const input = document.getElementById('chat-input');
+        const box = document.getElementById('chat-box');
+        const btn = document.getElementById('send-btn');
+
+        function sendMessage() {
+            if (input.value.trim() !== "") {
+                const now = new Date();
+                const time = now.getHours() + ":" + now.getMinutes().toString().padStart(2, '0');
+                
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'message sent';
+                msgDiv.innerHTML = `${input.value}<div class="message-time">${time}</div>`;
+                
+                box.appendChild(msgDiv);
+                input.value = "";
+                box.scrollTop = box.scrollHeight;
+            }
+        }
+
+        btn.onclick = sendMessage;
+        input.onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
+    </script>
+</body>
+</html>

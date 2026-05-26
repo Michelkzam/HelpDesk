@@ -122,6 +122,67 @@
       border-radius: 12px 12px 12px 0;
     }
 
+    .chat-status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 24px 0 8px 0;
+      padding: 0 4px;
+    }
+
+    .status-card {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 6px;
+      width: 52px;
+      min-width: 52px;
+      aspect-ratio: 1 / 1;
+      border: 1px solid #d8e2ed;
+      background: white;
+      color: #253858;
+      padding: 12px 8px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    .status-card:hover,
+    .status-card.ativo {
+      border-color: var(--topbar);
+      background: #eef5ff;
+      color: #12233e;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    .status-icone {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(63, 81, 181, 0.1);
+      color: var(--topbar);
+      font-size: 1.1rem;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: var(--topbar);
+      color: white;
+      font-size: 0.75rem;
+      padding: 0 6px;
+    }
+
     .mensagem.propria .mensagem-conteudo {
       background: var(--topbar);
       color: white;
@@ -189,6 +250,33 @@
   </style>
 </head>
 <body>
+  <div class="chat-status-bar">
+    <button class="status-card ativo" title="Todos os contatos" aria-label="Todos os contatos" onclick="filtrarStatus(event, 'todos')">
+      <span class="status-icone">👥</span>
+      <span class="status-badge" id="badge-todos">0</span>
+    </button>
+    <button class="status-card" title="Aguardando na fila" aria-label="Aguardando na fila" onclick="filtrarStatus(event, 'fila')">
+      <span class="status-icone">⏳</span>
+      <span class="status-badge" id="badge-fila">0</span>
+    </button>
+    <button class="status-card" title="Aguardando atendimento" aria-label="Aguardando atendimento" onclick="filtrarStatus(event, 'atendimento')">
+      <span class="status-icone">🕒</span>
+      <span class="status-badge" id="badge-atendimento">0</span>
+    </button>
+    <button class="status-card" title="Em atendimento" aria-label="Em atendimento" onclick="filtrarStatus(event, 'em_atendimento')">
+      <span class="status-icone">🔧</span>
+      <span class="status-badge" id="badge-em_atendimento">0</span>
+    </button>
+    <button class="status-card" title="Aguardando minha resposta" aria-label="Aguardando minha resposta" onclick="filtrarStatus(event, 'minha_resposta')">
+      <span class="status-icone">✉️</span>
+      <span class="status-badge" id="badge-minha_resposta">0</span>
+    </button>
+    <button class="status-card" title="Finalizados" aria-label="Finalizados" onclick="filtrarStatus(event, 'finalizados')">
+      <span class="status-icone">✅</span>
+      <span class="status-badge" id="badge-finalizados">0</span>
+    </button>
+  </div>
+
   <div class="chat-container">
     <!-- Lista de Conversas -->
     <aside class="lista-conversas" id="listaConversas">
@@ -211,7 +299,7 @@
     const API_URL = 'http://localhost:3001/api';
     const WS_URL = 'ws://localhost:3001';
     let usuario = JSON.parse(sessionStorage.getItem('usuario'));
-    let conversaSelecionada = null;
+    let conversaSelecionada = 'suporte';
     let ws = null;
 
     // Conectar WebSocket
@@ -239,33 +327,75 @@
       });
     }
 
+    let statusAtendimento = 'todos';
+    const conversas = [
+      {id: 'suporte', nome: 'Suporte ao Cliente', preview: 'Clique para iniciar chat...', hora: 'Agora', status: 'todos'},
+      {id: 'agente1', nome: 'João Silva', preview: 'Vou verificar isso para você', hora: '10:30', status: 'fila'},
+      {id: 'agente2', nome: 'Maria Santos', preview: 'Seu chamado foi atualizado', hora: '09:15', status: 'minha_resposta'},
+      {id: 'agente3', nome: 'Marcelo Costa', preview: 'Aguardando confirmação do cliente', hora: '11:05', status: 'atendimento'},
+      {id: 'agente4', nome: 'Luciana Alves', preview: 'Atendimento finalizado com sucesso', hora: '08:45', status: 'finalizados'},
+      {id: 'agente5', nome: 'Rafaela Nunes', preview: 'Chamado ainda na fila de espera', hora: '07:30', status: 'fila'}
+    ];
+
+    function atualizarBadges() {
+      const contagens = {
+        todos: conversas.length,
+        fila: conversas.filter(c => c.status === 'fila').length,
+        atendimento: conversas.filter(c => c.status === 'atendimento').length,
+        em_atendimento: conversas.filter(c => c.status === 'em_atendimento').length,
+        minha_resposta: conversas.filter(c => c.status === 'minha_resposta').length,
+        finalizados: conversas.filter(c => c.status === 'finalizados').length,
+      };
+
+      document.getElementById('badge-todos').textContent = contagens.todos;
+      document.getElementById('badge-fila').textContent = contagens.fila;
+      document.getElementById('badge-atendimento').textContent = contagens.atendimento;
+      document.getElementById('badge-em_atendimento').textContent = contagens.em_atendimento;
+      document.getElementById('badge-minha_resposta').textContent = contagens.minha_resposta;
+      document.getElementById('badge-finalizados').textContent = contagens.finalizados;
+    }
+
     function carregarConversas() {
+      atualizarBadges();
       const listaDiv = document.getElementById('listaConversas');
-      const html = `
+      const conversasFiltradas = conversas.filter(conversa => statusAtendimento === 'todos' || conversa.status === statusAtendimento);
+      let html = `
         <h3 style="margin: 0 0 16px 0; color: #253858;">Conversas</h3>
-        <div class="conversa ativa" onclick="selecionarConversa(null, 'Suporte ao Cliente')">
-          <div class="conversa-nome">Suporte ao Cliente</div>
-          <div class="conversa-preview">Clique para iniciar chat...</div>
-          <div class="conversa-hora">Agora</div>
-        </div>
-        <div class="conversa" onclick="selecionarConversa('agente1', 'João Silva')">
-          <div class="conversa-nome">João Silva</div>
-          <div class="conversa-preview">Vou verificar isso para você</div>
-          <div class="conversa-hora">10:30</div>
-        </div>
-        <div class="conversa" onclick="selecionarConversa('agente2', 'Maria Santos')">
-          <div class="conversa-nome">Maria Santos</div>
-          <div class="conversa-preview">Seu chamado foi atualizado</div>
-          <div class="conversa-hora">09:15</div>
-        </div>
       `;
+
+      if (conversasFiltradas.length === 0) {
+        html += `
+          <div style="padding: 24px; color: #6a7c93; border: 1px dashed #d8e2ed; border-radius: 12px; background: #f8fafc;">
+            Nenhuma conversa encontrada para este status.
+          </div>
+        `;
+      } else {
+        conversasFiltradas.forEach(conversa => {
+          const ativa = conversa.id === conversaSelecionada ? ' ativa' : '';
+          html += `
+            <div class="conversa${ativa}" onclick="selecionarConversa(this, '${conversa.id}', '${conversa.nome}')">
+              <div class="conversa-nome">${conversa.nome}</div>
+              <div class="conversa-preview">${conversa.preview}</div>
+              <div class="conversa-hora">${conversa.hora}</div>
+            </div>
+          `;
+        });
+      }
+
       listaDiv.innerHTML = html;
     }
 
-    function selecionarConversa(id, nome) {
+    function filtrarStatus(e, status) {
+      statusAtendimento = status;
+      document.querySelectorAll('.status-card').forEach(card => card.classList.remove('ativo'));
+      e.currentTarget.classList.add('ativo');
+      carregarConversas();
+    }
+
+    function selecionarConversa(element, id, nome) {
       conversaSelecionada = id;
       document.querySelectorAll('.conversa').forEach(el => el.classList.remove('ativa'));
-      event.target.closest('.conversa').classList.add('ativa');
+      element?.classList.add('ativa');
 
       document.getElementById('chatHeader').textContent = nome;
       document.getElementById('placeholder').style.display = 'none';

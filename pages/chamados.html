@@ -211,10 +211,10 @@
     </div>
 
     <div class="filtros">
-      <button class="filtro ativo" onclick="filtrarChamados('todos')">Todos</button>
-      <button class="filtro" onclick="filtrarChamados('aberto')">Abertos</button>
-      <button class="filtro" onclick="filtrarChamados('em_progresso')">Em Progresso</button>
-      <button class="filtro" onclick="filtrarChamados('fechado')">Fechados</button>
+      <button class="filtro ativo" onclick="filtrarChamados(event, 'todos')">Todos</button>
+      <button class="filtro" onclick="filtrarChamados(event, 'aberto')">Abertos</button>
+      <button class="filtro" onclick="filtrarChamados(event, 'em_progresso')">Em Progresso</button>
+      <button class="filtro" onclick="filtrarChamados(event, 'fechado')">Fechados</button>
     </div>
 
     <table class="tabela-chamados" id="tabelaChamados">
@@ -310,10 +310,10 @@
       }
     }
 
-    function filtrarChamados(status) {
+    function filtrarChamados(e, status) {
       filtroAtual = status;
       document.querySelectorAll('.filtro').forEach(b => b.classList.remove('ativo'));
-      event.target.classList.add('ativo');
+      e.target.classList.add('ativo');
       carregarChamados();
     }
 

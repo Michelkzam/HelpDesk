@@ -121,10 +121,10 @@
     </div>
 
     <div class="filtros">
-      <button class="filtro ativo" onclick="filtrar('todos')">Todos</button>
-      <button class="filtro" onclick="filtrar('vigente')">Vigentes</button>
-      <button class="filtro" onclick="filtrar('vencendo')">Vencendo</button>
-      <button class="filtro" onclick="filtrar('vencido')">Vencidos</button>
+      <button class="filtro ativo" onclick="filtrar(event, 'todos')">Todos</button>
+      <button class="filtro" onclick="filtrar(event, 'vigente')">Vigentes</button>
+      <button class="filtro" onclick="filtrar(event, 'vencendo')">Vencendo</button>
+      <button class="filtro" onclick="filtrar(event, 'vencido')">Vencidos</button>
     </div>
 
     <table class="tabela-contratos">
@@ -237,9 +237,9 @@
       }).join('');
     }
 
-    function filtrar(tipo) {
+    function filtrar(e, tipo) {
       document.querySelectorAll('.filtro').forEach(f => f.classList.remove('ativo'));
-      event.target.classList.add('ativo');
+      e.target.classList.add('ativo');
       renderizarContratos();
     }
 

@@ -115,11 +115,11 @@
     </div>
 
     <div class="filtros">
-      <button class="filtro ativo" onclick="filtrar('todos')">Todos</button>
-      <button class="filtro" onclick="filtrar('hardware')">Hardware</button>
-      <button class="filtro" onclick="filtrar('software')">Software</button>
-      <button class="filtro" onclick="filtrar('ativo')">Ativos</button>
-      <button class="filtro" onclick="filtrar('inativo')">Inativos</button>
+      <button class="filtro ativo" onclick="filtrar(event, 'todos')">Todos</button>
+      <button class="filtro" onclick="filtrar(event, 'hardware')">Hardware</button>
+      <button class="filtro" onclick="filtrar(event, 'software')">Software</button>
+      <button class="filtro" onclick="filtrar(event, 'ativo')">Ativos</button>
+      <button class="filtro" onclick="filtrar(event, 'inativo')">Inativos</button>
     </div>
 
     <table class="tabela-inventario">
@@ -226,9 +226,9 @@
       }).join('');
     }
 
-    function filtrar(tipo) {
+    function filtrar(e, tipo) {
       document.querySelectorAll('.filtro').forEach(f => f.classList.remove('ativo'));
-      event.target.classList.add('ativo');
+      e.target.classList.add('ativo');
       renderizarTabela();
     }
 

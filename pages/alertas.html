@@ -202,11 +202,11 @@
     </div>
 
     <div class="filtros">
-      <button class="filtro ativo" onclick="filtrar('todos')">Todos</button>
-      <button class="filtro" onclick="filtrar('critico')">Críticos</button>
-      <button class="filtro" onclick="filtrar('alerta')">Alertas</button>
-      <button class="filtro" onclick="filtrar('info')">Informações</button>
-      <button class="filtro" onclick="filtrar('resolvido')">Resolvidos</button>
+      <button class="filtro ativo" onclick="filtrar(event, 'todos')">Todos</button>
+      <button class="filtro" onclick="filtrar(event, 'critico')">Críticos</button>
+      <button class="filtro" onclick="filtrar(event, 'alerta')">Alertas</button>
+      <button class="filtro" onclick="filtrar(event, 'info')">Informações</button>
+      <button class="filtro" onclick="filtrar(event, 'resolvido')">Resolvidos</button>
     </div>
 
     <div class="alertas-lista" id="alertasLista"></div>
@@ -303,9 +303,9 @@
       `).join('');
     }
 
-    function filtrar(tipo) {
+    function filtrar(e, tipo) {
       document.querySelectorAll('.filtro').forEach(f => f.classList.remove('ativo'));
-      event.target.classList.add('ativo');
+      e.target.classList.add('ativo');
       renderizarAlertas();
     }
 

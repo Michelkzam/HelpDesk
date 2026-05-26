@@ -363,11 +363,11 @@
     </div>
 
     <div class="filtros">
-      <button class="filtro ativo" onclick="filtrarUsuarios('todos')">Todos</button>
-      <button class="filtro" onclick="filtrarUsuarios('cliente')">Clientes</button>
-      <button class="filtro" onclick="filtrarUsuarios('tecnico')">Técnicos</button>
-      <button class="filtro" onclick="filtrarUsuarios('analista')">Analistas</button>
-      <button class="filtro" onclick="filtrarUsuarios('admin')">Admins</button>
+      <button class="filtro ativo" onclick="filtrarUsuarios(event,'todos')">Todos</button>
+      <button class="filtro" onclick="filtrarUsuarios(event,'cliente')">Clientes</button>
+      <button class="filtro" onclick="filtrarUsuarios(event,'tecnico')">Técnicos</button>
+      <button class="filtro" onclick="filtrarUsuarios(event,'analista')">Analistas</button>
+      <button class="filtro" onclick="filtrarUsuarios(event,'admin')">Admins</button>
     </div>
 
     <table class="tabela-usuarios">
@@ -605,10 +605,10 @@
     }
 
     // Filtrar usuários
-    function filtrarUsuarios(filtro) {
+    function filtrarUsuarios(e, filtro) {
       filtroAtual = filtro;
       document.querySelectorAll('.filtro').forEach(btn => btn.classList.remove('ativo'));
-      event.target.classList.add('ativo');
+      e.target.classList.add('ativo');
       exibirUsuarios();
     }
 
