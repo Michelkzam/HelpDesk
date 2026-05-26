@@ -1,10 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { createClient } from '@supabase/supabase-js';
 import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
 import { v4 as uuidv4 } from 'uuid';
+import { supabase } from './supabaseClient.js';
 import authRoutes from './routes/auth.js';
 import chamadosRoutes from './routes/chamados.js';
 import agendamentoRoutes from './routes/agendamento.js';
@@ -17,12 +17,6 @@ dotenv.config();
 const app = express();
 const server = createServer(app);
 const wss = new WebSocketServer({ server });
-
-// Supabase
-export const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
 
 // Middleware
 app.use(cors());

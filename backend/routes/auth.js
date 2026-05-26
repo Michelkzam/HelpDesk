@@ -1,7 +1,6 @@
 import express from 'express';
-import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { supabase } from '../server.js';
+import { supabase, supabaseAuth } from '../supabaseClient.js';
 
 const router = express.Router();
 
@@ -15,11 +14,8 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Email, senha e nome são obrigatórios' });
     }
 
-    // Hash da senha
-    const senhaHash = await bcrypt.hash(senha, 10);
-
     // Criar usuário no Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.signUp({
+    const { data: authData, error: authError } = await supabaseAuth.auth.signUp({
       email,
       password: senha
     });
@@ -91,7 +87,7 @@ router.post('/login', async (req, res) => {
 // Logout
 router.post('/logout', async (req, res) => {
   try {
-    await supabase.auth.signOut();
+    await supabaseAuth.auth.signOut();
     res.json({ message: 'Desconectado com sucesso' });
   } catch (error) {
     res.status(500).json({ error: error.message });
