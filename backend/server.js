@@ -1,10 +1,17 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { dirname, resolve } from 'path';
+import { fileURLToPath } from 'url';
 import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from './supabaseClient.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+dotenv.config({ path: resolve(__dirname, '.env') });
 import authRoutes from './routes/auth.js';
 import chamadosRoutes from './routes/chamados.js';
 import agendamentoRoutes from './routes/agendamento.js';
@@ -89,10 +96,12 @@ async function salvarMensagemChat(message) {
   const { data, error } = await supabase
     .from('chat_mensagens')
     .insert([{
+      id: uuidv4(),
       usuario_id: message.from,
       destinatario_id: message.destinatario || null,
       conteudo: message.text,
-      tipo: message.userType
+      tipo: message.userType,
+      data_criacao: new Date()
     }]);
 
   if (error) console.error('Erro ao salvar mensagem:', error);
